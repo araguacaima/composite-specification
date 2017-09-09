@@ -1,9 +1,7 @@
-![amma logo](/docs/resources/amma-logo.png "AmMa Logo") raguacaima
-===
+![amma logo](/docs/resources/amma-logo-full-2.png "AmMa Logo")
 
 ToC
 ===
-***
 
   * [Composite Specification Pattern](#composite-specification-pattern)
   * [Command](#command)
@@ -16,7 +14,6 @@ ToC
 
 Composite Specification Pattern
 ===
-***
 
 The *Composite Specification pattern* is a particular implementation of the "Specification" design pattern, whereby business logic can be recombined by stringing business logic together with Boolean logic. Next we're going to dedicate a little more space to its detailed description.
 
@@ -24,24 +21,20 @@ The pattern describes a business logic unit that can be combined with other logi
 
 Here is a class diagram of the basic pattern.
 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+![basic-specification-class-diagram](/docs/resources/basic-specification-class-diagram.png "Basic Specification class diagram")
 
 Based on the described pattern, an extended model is proposed to make a slight adaptation that would allow a greater flexibility for the recursive path of the nodes that make up the complete structure, as well as the eventual obtaining of the chain of associations that make up the expressions that represent the specifications. In addition, facilities were attached for the determination of the assessment of the condition to be invoked by the component classes. Thus, see the following adaptation to the diagram:
 
-
-
+![extended-specification-class-diagram](/docs/resources/extended-specification-class-diagram.png "Extended Specification class diagram")
 
 Note that the mandatory *_getLeftNode_*, *_getRightNode_*, and toString methods were included in the Specification interface. The AbstractSpecification abstract class only implements the *_toString_* method whose implementation is common to all objects inheriting from it and delegates to its daughters the implementation of the *_getLeftNode_* and *_getRightNode_* methods. Another important notice to note is that the signature of the *_isSatisfiedBy_* method was modified by adding a Map type parameter. This parameter simply serves as a bearer of any variables and data required for the evaluation of the condition by the daughter classes in addition as a communicator or messenger between the different states that the method could handle or modify and that would be of eventual utility to their super classes or to classes outside the pattern that use the same.
 
 Command
 ===
-***
 
 The class diagram associated with the pattern is detailed below.
 
-
-
-
+![command-class-diagram](/docs/resources/command-class-diagram.png "Command class diagram")
 
 Joining Composite Specification with Command Pattern
 ---
@@ -68,7 +61,6 @@ Let's talk a little about these utilitary classes.
 
 SpecificationMap and SpecificationMapUtil
 ===
-***
 
 The SpecificationMap class represents a specification map for each class where each map key associates a specific method of the class with a specific specification for the class. This class is obtained through the utility class SpecificationMapUtil which is a Singleton Map (Design Pattern). The way to get a particular instance of SpecificationMapUtil is to tell you which map to search and which class to search. Once the class is located within the map, a SpecificationMap object is then returned, which is constructed from an expression representing the specification for each method that owns the class in question.
 
@@ -213,34 +205,26 @@ The convenient delegation of the details of common implementation of all the "co
 
 Let us then describe the last pattern involved in the solution, the Interpreter pattern.
 
-
 Interpreter
 ===
-***
 
 The Interpreter is a design pattern that, given a language, defines a representation for its grammar along with a language interpreter.
 It is used to define a language or to represent regular expressions that represent strings to look for within other strings. In addition, in general, to define a language that allows to represent the different instances of a family of problems.
 
 The class diagram associated with the pattern is detailed below.
 
-
-
-
+![interpreter-class-diagram](/docs/resources/interpreter-class-diagram.png "Interpreter class diagram")
 
 As in the previous pattern, the pattern was considerably refined in such a way as to extend its possibilities and to support even more the proposed solution.
 
 Basically, facilities were added for the evaluation of various expressions beyond simple syntactic interpretation. This evaluation involves the adoption of implementations of the pattern applied to different subsets of language elements, on the one hand a logical set and on the other an arithmetic set. In this way the adaptation allows the interpretation and evaluation of arithmetic and logical expressions. To achieve this end, the specification of an "Evaluator" and an "Expression to the employer" was included. Such evaluator may assist the Interpreter to "evaluate" the context-dependent "expression" that is required. The following is a detail of the associated class diagram.
 
-
-
-
+![interpreter-extended-class-diagram](/docs/resources/interpreter-extended-class-diagram.png "Interpreter extended class diagram")
 
 As you will notice these implementations and adaptations are not tied to a specific business logic. This approximation attends to a functionality available for its use by any interested third-party. For this reason, both adaptations of the described patterns are available as part of this utility libraries, in which a set of common and platform-independent functionalities and/or specific solutions are available.
 
-
 How to use it?
 ===
-***
 
 The central point of the proposal that the solution be "configurable" was framed in the fact that it was possible to find an expression that could represent the combination that best fit the particular scenario of a given moment and that reflects the required business logic . This expression should be "interpreted" and should also describe the orderly execution of activities that would equate the sequential actions implemented in each of the commands. If we take as base the class FooCommand then we can create an example of expression as mentioned.
 
@@ -264,15 +248,9 @@ The interpretation of this pair would be something like: "The classes described 
 
 Conclusion
 ===
-***
 
 It is easy to notice the potential that we have then to define different rules, the possibilities are as many as are required. All combinations and arrangements between these elements are possible. Any omissions that you wish to make at will are also very simple to carry out. Basically it is required to remove the desired persistence orchestrator. It is also clear that the inclusion of a new element of persistence is greatly simplified.
 
 Correct handling of the logic that would ensure orderly and consistent execution of the rule described would be delegated to the CompositeSpecification pattern described above and not to the body of the execute methods of the Command pattern implementers, as already specified. This way the instantiation and execution of the invokers of the commands would be made uniform. Independence of the handling of persistence operations by one command (and method) or another through a simple configuration was also achieved.
 
 After determining the expression that reflects the business rule it was posbile then creating, from it, a "specification" that would model it more concretely.
-
-
-
-
-
