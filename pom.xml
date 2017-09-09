@@ -5,19 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>composite-specification</artifactId>
-    <version>1.0</version>
+    <version>1.0-RELEASE</version>
     <packaging>jar</packaging>
-    <name>Composite Specification</name>
-     <url>http://maven.apache.org</url>
-    <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
-        files, exceptions, zip/jar files, classes (via Reflection), maps, numbers and so on.
-
-        Most of the utilities extend functionalities covered in amazing libraries like:
-
-        * commons-beanutils (apache)
-        * commons-lang3 (apache)
-        * commons-io (apache)
-        * commons-math3 (apache)
+    <name>${project.artifactId}</name>
+    <url>http://maven.apache.org</url>
+    <description>The Composite Specification Pattern is a particular implementation of the "Specification" design
+        pattern, whereby business logic can be recombined by stringing business logic together with Boolean logic.
     </description>
 
     <licenses>
@@ -59,6 +52,7 @@
         <commons-io-commons-io>2.5</commons-io-commons-io>
         <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
         <aspectj.version>1.8.4</aspectj.version>
+        <com.araguacaima-commons-utils>1.0-RELEASE</com.araguacaima-commons-utils>
 
         <!-- Generic properties -->
         <java.version>1.8</java.version>
@@ -113,7 +107,7 @@
         <dependency>
             <groupId>com.araguacaima</groupId>
             <artifactId>commons-utils</artifactId>
-            <version>1.0-RELEASE</version>
+            <version>${com.araguacaima-commons-utils}</version>
         </dependency>
 
         <dependency>
