@@ -66,7 +66,7 @@ The SpecificationMap class represents a specification map for each class where e
 
 This is how the above statement
 
-```java
+```javascript
 SpecificationMap specificationMap = 
   SpecificationMapUtil.getInstance(CommandExpressions.getSpecificationExpressions(), FooCommand.class);
 ```
@@ -81,7 +81,7 @@ Passing the class as a parameter, instead of its name only (which would be the f
 
 Well, once the map was obtained, the next step would be simply to obtain the specification corresponding to the method that interests us. In this particular we were interested in the "execute" method of the class.
 
-```java
+```javascript
 Specification specification = SpecificationMap.getSpecificationFromMethod("execute");
 ```
 
@@ -98,48 +98,54 @@ Now we can have an improved version of the FooCommand class:
 ```java
 public class FooCommand extends AbstractCommand {
 
-	private static Specification specificationExecute;
-	private static Specification specificationInitialize;
-	private static Specification specificationPostExecute;
+    private static Specification specificationExecute;
+    private static Specification specificationInitialize;
+    private static Specification specificationPostExecute;
 
-	static {
-     SpecificationMap specificationMap;
-     specificationMap = SpecificationMapUtil.getInstance(CommandExpressions.getSpecificationExpressions(), FooCommand.class);
-		specificationExecute = specificationMap.getSpecificationFromMethod("execute");
-		specificationInitialize = specificationMap.getSpecificationFromMethod("initialize");
-		specificationPostExecute = specificationMap.getSpecificationFromMethod("postExecute");
+    static {
+        SpecificationMap specificationMap;
+        specificationMap = SpecificationMapUtil.getInstance(CommandExpressions.getSpecificationExpressions(),
+                FooCommand.class);
+        specificationExecute = specificationMap.getSpecificationFromMethod("execute");
+        specificationInitialize = specificationMap.getSpecificationFromMethod("initialize");
+        specificationPostExecute = specificationMap.getSpecificationFromMethod("postExecute");
     }
 
-	public Specification getSpecificationExecute() {
-		return specificationExecute;
-	}
-	public static void setSpecificationExecute(Specification specificationExecute) {
-		FooCommand.specificationExecute = specificationExecute;
-	}
-	public Specification getSpecificationInitialize() {
-		return specificationInitialize;
-	}
-	public static void setSpecificationInitialize(Specification specificationInitialize) {
-		FooCommand.specificationInitialize = specificationInitialize;
-	}
-	public Specification getSpecificationPostExecute() {
-		return specificationPostExecute;
-	}
-	public static void setSpecificationPostExecute(Specification specificationPostExecute) {
-		FooCommand.specificationPostExecute = specificationPostExecute;
-	}
-	protected void setSpecificationInitialize(Collection commandSpecificationsExpression) {
-		specificationInitialize = buildSpecificationFromCollection
-									(commandSpecificationsExpression, "initialize");
-	}
-	protected void setSpecificationExecute(Collection commandSpecificationsExpression) {
-		specificationExecute = buildSpecificationFromCollection
-									(commandSpecificationsExpression, "execute");
-	}
-	protected void setSpecificationPostExecute(Collection commandSpecificationsExpression) {
-		specificationPostExecute = buildSpecificationFromCollection
-									(commandSpecificationsExpression, "postExecute");
-	}    
+    public static void setSpecificationExecute(Specification specificationExecute) {
+        FooCommand.specificationExecute = specificationExecute;
+    }
+
+    public static void setSpecificationInitialize(Specification specificationInitialize) {
+        FooCommand.specificationInitialize = specificationInitialize;
+    }
+
+    public static void setSpecificationPostExecute(Specification specificationPostExecute) {
+        FooCommand.specificationPostExecute = specificationPostExecute;
+    }
+
+    public Specification getSpecificationExecute() {
+        return specificationExecute;
+    }
+
+    protected void setSpecificationExecute(Collection commandSpecificationsExpression) {
+        specificationExecute = buildSpecificationFromCollection(commandSpecificationsExpression, "execute");
+    }
+
+    public Specification getSpecificationInitialize() {
+        return specificationInitialize;
+    }
+
+    protected void setSpecificationInitialize(Collection commandSpecificationsExpression) {
+        specificationInitialize = buildSpecificationFromCollection(commandSpecificationsExpression, "initialize");
+    }
+
+    public Specification getSpecificationPostExecute() {
+        return specificationPostExecute;
+    }
+
+    protected void setSpecificationPostExecute(Collection commandSpecificationsExpression) {
+        specificationPostExecute = buildSpecificationFromCollection(commandSpecificationsExpression, "postExecute");
+    }
 }
 ```
 
@@ -148,10 +154,31 @@ AbstractCommand class could be declared as follows:
 ```java
 public abstract class AbstractCommand<T> implements CommandInterface {
 
-	 . . . . . 
+        . . . .
 
-    public void initialize(T request) throws ProvisioningException {
-		  Boolean result;
+    protected Specification buildSpecificationFromCollection(Collection commandSpecificationsExpressionForMethod,
+                                                             String methodNameSuffix) {
+        . . . .
+    }
+
+    public Object execute(T request)
+            throws ProvisioningException {
+        Boolean result;
+        try {
+            result = Boolean.valueOf(getSpecificationExecute().isSatisfiedBy(request, map));
+        } catch (Exception e) {
+            // Exception treatment
+        }
+        return result;
+    }
+
+    protected abstract Specification getSpecificationExecute();
+
+    protected abstract void setSpecificationExecute(Collection commandSpecificationsExpression);
+
+    public void initialize(T request)
+            throws ProvisioningException {
+        Boolean result;
         try {
             result = Boolean.valueOf(getSpecificationInitialize().isSatisfiedBy(request, map));
         } catch (Exception e) {
@@ -159,44 +186,27 @@ public abstract class AbstractCommand<T> implements CommandInterface {
         }
     }
 
-    public Object execute (T request) throws ProvisioningException {
-		  Boolean result;
-        try {
-            result = Boolean.valueOf(getSpecificationExecute().isSatisfiedBy(request, map));
-        } catch (Exception e) {
-            // Exception treatment
-        }
-			return result;
-    }
+    protected abstract Specification getSpecificationInitialize();
 
-    public Object postExecute (T request) throws ProvisioningException {
-		  Boolean result;
+    protected abstract void setSpecificationInitialize(Collection commandSpecificationsExpression);
+
+    public Object postExecute(T request)
+            throws ProvisioningException {
+        Boolean result;
         try {
             result = Boolean.valueOf(getSpecificationPostExecute().isSatisfiedBy(request, map));
         } catch (Exception e) {
             // Exception treatment
         }
-			return result;
+        return result;
     }
 
-    protected abstract Specification getSpecificationInitialize();
-    protected abstract Specification getSpecificationExecute();
     protected abstract Specification getSpecificationPostExecute();
-    protected abstract void setSpecificationInitialize(
-								Collection commandSpecificationsExpression);
-    protected abstract void setSpecificationExecute(
-								Collection commandSpecificationsExpression);
-    protected abstract void setSpecificationPostExecute(
-								Collection commandSpecificationsExpression);
 
-    public void setSpecification(final Collection commandSpecificationsExpression,
-                                 final String methodNameSuffix) {
-		. . . .
-    }
-    protected Specification buildSpecificationFromCollection
-								(Collection commandSpecificationsExpressionForMethod,
-                                  String methodNameSuffix) {
-		. . . .
+    protected abstract void setSpecificationPostExecute(Collection commandSpecificationsExpression);
+
+    public void setSpecification(final Collection commandSpecificationsExpression, final String methodNameSuffix) {
+        . . . .
     }
 }
 ```
@@ -230,7 +240,7 @@ The central point of the proposal that the solution be "configurable" was framed
 
 The following would be the representation of a "key, value" pair stored in a properties file (it could have been in database or obtained through a web service, for example):
 
-```yaml
+```javascript
 com.foo.FooCommand.execute=
 com.foo.business.rules.Condition1 & com.foo.business.rules.Condition2 & (com.foo.business.rules.Condition3 | com.foo.business.rules.Condition4)
 ```
