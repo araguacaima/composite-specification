@@ -25,11 +25,11 @@ import java.util.Map;
 
 public interface Context {
 
-    Map getContextElements();
-
     void assign(String var, Specification specification);
 
     void assignParameterObject(String var, Object parameter);
+
+    Map getContextElements();
 
     Object getContextObject(String var);
 

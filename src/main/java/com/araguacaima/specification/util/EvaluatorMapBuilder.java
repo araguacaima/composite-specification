@@ -19,9 +19,7 @@
 
 package com.araguacaima.specification.util;
 
-import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.MapUtils;
-import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import com.araguacaima.specification.interpreter.Evaluator;
 import com.araguacaima.specification.interpreter.arithmetic.ArithmeticContext;
 import com.araguacaima.specification.interpreter.arithmetic.ArithmeticEvaluator;
@@ -33,29 +31,26 @@ import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithm
 import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticEvaluator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
-@Component
+@SuppressWarnings("WeakerAccess")
+@Service
 public class EvaluatorMapBuilder {
 
+    final String propertiesFile = "evaluator.properties";
     private ArithmeticEvaluator arithmeticEvaluator;
     private LogicalArithmeticEvaluator logicalArithmeticEvaluator;
     private LogicalEvaluator logicalEvaluator;
     private Map<String, Evaluator> logicalEvaluatorMap = new HashMap<>();
     private MapUtils mapUtils;
     private Properties properties = new Properties();
-    private PropertiesHandlerUtils propertiesHandlerUtils;
 
     @Autowired
-    private EvaluatorMapBuilder(PropertiesHandlerUtils propertiesHandlerUtils,
-                                ArithmeticEvaluator arithmeticEvaluator,
+    private EvaluatorMapBuilder(ArithmeticEvaluator arithmeticEvaluator,
                                 LogicalArithmeticEvaluator logicalArithmeticEvaluator,
                                 LogicalEvaluator logicalEvaluator) {
-        this.propertiesHandlerUtils = propertiesHandlerUtils;
     }
 
     private EvaluatorMapBuilder(Properties prop) {
@@ -189,48 +184,6 @@ public class EvaluatorMapBuilder {
 
     private Map buildEvaluatorMap(Map<String, String> map) {
         return buildInstance(mapUtils.toProperties(map), null, false);
-    }
-
-    public EvaluatorMapBuilder getInstance() {
-        try {
-            buildEvaluatorMap();
-        } catch (IOException | PropertiesUtilException e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
-
-    private Map buildEvaluatorMap()
-            throws IOException, PropertiesUtilException {
-        return buildEvaluatorMap(propertiesHandlerUtils.getHandler("evaluator.properties",
-                EvaluatorMapBuilder.class.getClassLoader()).getProperties());
-    }
-
-    public EvaluatorMapBuilder getInstance(File file) {
-        buildEvaluatorMap(file);
-        return this;
-    }
-
-    private Map buildEvaluatorMap(File propertiesFile) {
-        return buildInstance(propertiesHandlerUtils.getHandler(propertiesFile.getPath()).getProperties(), null, false);
-    }
-
-    public EvaluatorMapBuilder getInstance(String fileName)
-            throws PropertiesUtilException {
-        buildEvaluatorMap(fileName);
-        return this;
-    }
-
-    private Map buildEvaluatorMap(String fileName)
-            throws PropertiesUtilException {
-        return buildInstance(propertiesHandlerUtils.getHandler(fileName,
-                EvaluatorMapBuilder.class.getClassLoader()).getProperties(), null, false);
-    }
-
-    public Map getInstance(File propertiesFile, String label, boolean replace) {
-        return buildInstance(propertiesHandlerUtils.getHandler(propertiesFile.getPath()).getProperties(),
-                label,
-                replace);
     }
 
     public LogicalArithmeticEvaluator getLogicalArithmeticEvaluator(String logicalArithmeticEvaluatorKey,

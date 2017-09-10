@@ -19,6 +19,7 @@
 
 package com.araguacaima.specification.interpreter.logical;
 
+import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Evaluator;
 import com.araguacaima.specification.interpreter.Expression;
@@ -26,33 +27,24 @@ import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.exception.InvalidExpressionException;
-import com.araguacaima.commons.utils.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.TransformerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
+@Component
 public class LogicalEvaluator implements Evaluator {
 
-    private String expression;
-    private boolean evaluateAllTerms;
-    private static final HashMap operators = new HashMap();
-    private Context ctx;
-
     public static final Character AND = '&';
-    public static final Character OR = '|';
-    public static final Character LE = '≡';
-    private static final Character EQ = '=';
-    public static final Character NOT = '¬';
-    public static final Character STARTING_PARENTHESIS = '(';
     public static final Character CLOSING_PARENTHESIS = ')';
-    private StringUtils stringUtils;
+    public static final Character LE = '≡';
+    public static final Character NOT = '¬';
+    public static final Character OR = '|';
+    public static final Character STARTING_PARENTHESIS = '(';
+    private static final Character EQ = '=';
+    private static final HashMap operators = new HashMap();
 
     static {
         operators.put(AND, "1");
@@ -63,6 +55,11 @@ public class LogicalEvaluator implements Evaluator {
         operators.put(STARTING_PARENTHESIS, "0");
         operators.put(CLOSING_PARENTHESIS, "0");
     }
+
+    private Context ctx;
+    private boolean evaluateAllTerms;
+    private String expression;
+    private StringUtils stringUtils;
 
     @Autowired
     public LogicalEvaluator(StringUtils stringUtils) {
@@ -75,35 +72,26 @@ public class LogicalEvaluator implements Evaluator {
         setEvaluateAllTerms(evaluateAllTerms);
     }
 
-    public void setContext(Context c) {
-        ctx = c;
-    }
-
-    public void setContext(final Map<String, Object> contextMap) {
-        final LogicalContext c = new LogicalContext();
-        if (contextMap != null) {
-            CollectionUtils.forAllDo(contextMap.keySet(), o -> {
-                String key = (String) o;
-                c.assign(key, (Boolean) contextMap.get(key));
-            });
-        }
-        ctx = c;
+    public static Map getFullOperators() {
+        return operators;
     }
 
     public void addToContext(String key, String value) {
         ((LogicalContext) ctx).assign(key, Boolean.valueOf(value));
     }
 
-    public void setExpression(String expr) {
-        expression = expr;
-    }
-
-    public boolean evaluate(Context c) throws ExpressionException, ContextException {
+    public boolean evaluate(Context c)
+            throws ExpressionException, ContextException {
         setContext(c);
         return evaluate();
     }
 
-    private boolean evaluate() throws ExpressionException, ContextException {
+    public void setContext(Context c) {
+        ctx = c;
+    }
+
+    private boolean evaluate()
+            throws ExpressionException, ContextException {
         //build the Binary Tree
         Expression rootNode = buildExpressionTree();
 
@@ -116,81 +104,10 @@ public class LogicalEvaluator implements Evaluator {
         }
     }
 
-    public NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r) {
-        String incomingOperation = operation.trim();
-        if (incomingOperation.equals(AND.toString())) {
-            return new AndExpression(getEvaluateAllTerms(), l, r);
-        }
-        if (incomingOperation.equals(OR.toString())) {
-            return new OrExpression(getEvaluateAllTerms(), l, r);
-        }
-        if (incomingOperation.equals(LE.toString())) {
-            return new LogicalEqExpression(getEvaluateAllTerms(), l, r);
-        }
-        if (incomingOperation.equals(NOT.toString())) {
-            return new NotExpression(getEvaluateAllTerms(), r);
-        }
-        if (incomingOperation.equals(EQ.toString())) {
-            return new EqualExpression(getEvaluateAllTerms(), l, r);
-        }
-        return null;
-    }
-
-    public Expression buildTree(String expr) throws ExpressionException {
-        Stack s = new Stack();
-        Collection <Character>symbolOperators = getOperators();
-        CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
-        for (int i = 0; i < expr.length(); ) {
-            String currChar = expr.substring(i, 1);
-
-            if (isNot(currChar)) {
-                Expression r = (Expression) s.pop();
-                Expression n = getNonTerminalExpression(currChar, null, r);
-                s.push(n);
-                expr = expr.substring(1).trim();
-            } else if (!isOperator(currChar)) {
-                int limit = StringUtils.firstIndexOf(expr, symbolOperators);
-                if (limit == -1) {
-                    limit = expr.length();
-                }
-                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
-                tokens.remove(token);
-                Expression e = new TerminalLogicalExpression(getEvaluateAllTerms(), token);
-                s.push(e);
-                expr = expr.substring(token.length()).trim();
-            } else {
-                Expression r;
-                Expression l;
-                try {
-                    r = (Expression) s.pop();
-                } catch (java.util.EmptyStackException ese) {
-                    throw new ExpressionException("There is no right element in the expression to evaluating for");
-                }
-                try {
-                    l = (Expression) s.pop();
-                } catch (java.util.EmptyStackException ese) {
-                    throw new ExpressionException("There is no left element in the expression to evaluating for");
-                }
-                Expression n = getNonTerminalExpression(currChar, l, r);
-                s.push(n);
-                expr = expr.substring(1).trim();
-            }
-        }//for
-        return s.size() == 0
-                ? null
-                : (Expression) s.pop();
-    }
-
-    public boolean isOperator(String str) {
-        String incoming = str.trim();
-        return operators.containsKey(incoming.charAt(0));
-    }
-
-    private boolean isNot(String str) {
-        String incoming = str.trim();
-        return incoming.equals(NOT.toString());
-
+    public Expression buildExpressionTree()
+            throws ExpressionException {
+        String pfExpr = infixToPostFix(expression);
+        return buildTree(pfExpr);
     }
 
     public String infixToPostFix(String input) {
@@ -198,7 +115,7 @@ public class LogicalEvaluator implements Evaluator {
         Stack s = new Stack();
         StringBuilder pfExpr = new StringBuilder();
         String tempStr;
-        Collection <Character>symbolOperators = getOperators();
+        Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
         if (!StringUtils.isBlank(str)) {
             for (int i = 0; i < str.length(); ) {
@@ -265,32 +182,84 @@ public class LogicalEvaluator implements Evaluator {
         return pfExpr.toString();
     }
 
+    public Expression buildTree(String expr)
+            throws ExpressionException {
+        Stack s = new Stack();
+        Collection<Character> symbolOperators = getOperators();
+        CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
+        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
+        for (int i = 0; i < expr.length(); ) {
+            String currChar = expr.substring(i, 1);
+
+            if (isNot(currChar)) {
+                Expression r = (Expression) s.pop();
+                Expression n = getNonTerminalExpression(currChar, null, r);
+                s.push(n);
+                expr = expr.substring(1).trim();
+            } else if (!isOperator(currChar)) {
+                int limit = StringUtils.firstIndexOf(expr, symbolOperators);
+                if (limit == -1) {
+                    limit = expr.length();
+                }
+                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                tokens.remove(token);
+                Expression e = new TerminalLogicalExpression(getEvaluateAllTerms(), token);
+                s.push(e);
+                expr = expr.substring(token.length()).trim();
+            } else {
+                Expression r;
+                Expression l;
+                try {
+                    r = (Expression) s.pop();
+                } catch (java.util.EmptyStackException ese) {
+                    throw new ExpressionException("There is no right element in the expression to evaluating for");
+                }
+                try {
+                    l = (Expression) s.pop();
+                } catch (java.util.EmptyStackException ese) {
+                    throw new ExpressionException("There is no left element in the expression to evaluating for");
+                }
+                Expression n = getNonTerminalExpression(currChar, l, r);
+                s.push(n);
+                expr = expr.substring(1).trim();
+            }
+        }//for
+        return s.size() == 0 ? null : (Expression) s.pop();
+    }
+
     private static Collection<Character> getOperators() {
         return new HashSet(operators.keySet());
     }
 
-    public static Map getFullOperators() {
-        return operators;
+    public boolean isOperator(String str) {
+        String incoming = str.trim();
+        return operators.containsKey(incoming.charAt(0));
     }
 
-    public Expression buildExpressionTree() throws ExpressionException {
-        String pfExpr = infixToPostFix(expression);
-        return buildTree(pfExpr);
+    private boolean isNot(String str) {
+        String incoming = str.trim();
+        return incoming.equals(NOT.toString());
+
     }
 
-    public Collection getTokens() throws ExpressionException {
-        Expression exp = buildExpressionTree();
-        return exp == null
-                ? new ArrayList()
-                : exp.getTerms();
-    }
-
-    public String getExpression() {
-        return expression;
-    }
-
-    public Context getContext() {
-        return ctx;
+    public NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r) {
+        String incomingOperation = operation.trim();
+        if (incomingOperation.equals(AND.toString())) {
+            return new AndExpression(getEvaluateAllTerms(), l, r);
+        }
+        if (incomingOperation.equals(OR.toString())) {
+            return new OrExpression(getEvaluateAllTerms(), l, r);
+        }
+        if (incomingOperation.equals(LE.toString())) {
+            return new LogicalEqExpression(getEvaluateAllTerms(), l, r);
+        }
+        if (incomingOperation.equals(NOT.toString())) {
+            return new NotExpression(getEvaluateAllTerms(), r);
+        }
+        if (incomingOperation.equals(EQ.toString())) {
+            return new EqualExpression(getEvaluateAllTerms(), l, r);
+        }
+        return null;
     }
 
     public boolean getEvaluateAllTerms() {
@@ -299,5 +268,34 @@ public class LogicalEvaluator implements Evaluator {
 
     public void setEvaluateAllTerms(boolean evaluateAllTerms) {
         this.evaluateAllTerms = evaluateAllTerms;
+    }
+
+    public Context getContext() {
+        return ctx;
+    }
+
+    public void setContext(final Map<String, Object> contextMap) {
+        final LogicalContext c = new LogicalContext();
+        if (contextMap != null) {
+            CollectionUtils.forAllDo(contextMap.keySet(), o -> {
+                String key = (String) o;
+                c.assign(key, (Boolean) contextMap.get(key));
+            });
+        }
+        ctx = c;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expr) {
+        expression = expr;
+    }
+
+    public Collection getTokens()
+            throws ExpressionException {
+        Expression exp = buildExpressionTree();
+        return exp == null ? new ArrayList() : exp.getTerms();
     }
 } // End of class

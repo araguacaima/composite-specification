@@ -35,12 +35,9 @@ public class TerminalArithmeticExpression extends ArithmeticExpression implement
         var = v;
     }
 
-    public Collection getTerms() {
-        return Arrays.asList(getValue());
-    }
-
-    public Object getValue() {
-        return var;
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
+        return new ArithmeticExpressionImpl(((ArithmeticContext) c).getValue(var));
     }
 
     public Object getCondition() {
@@ -55,7 +52,11 @@ public class TerminalArithmeticExpression extends ArithmeticExpression implement
         return null;
     }
 
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
-        return new ArithmeticExpressionImpl(((ArithmeticContext) c).getValue(var));
+    public Collection getTerms() {
+        return Arrays.asList(getValue());
+    }
+
+    public Object getValue() {
+        return var;
     }
 }

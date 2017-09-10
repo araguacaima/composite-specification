@@ -44,14 +44,8 @@ public abstract class ArithmeticExpression implements Expression {
         setEvaluateAllTerms(evaluateAllTerms);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param evaluateAllTerms
-     */
-    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
-        this.evaluateAllTerms = evaluateAllTerms;
-    }
+    public abstract Expression evaluate(Context c)
+            throws ExpressionException, ContextException;
 
     /**
      * {@inheritDoc}
@@ -63,6 +57,13 @@ public abstract class ArithmeticExpression implements Expression {
         return evaluateAllTerms;
     }
 
-    public abstract Expression evaluate(Context c) throws ExpressionException, ContextException;
+    /**
+     * {@inheritDoc}
+     *
+     * @param evaluateAllTerms
+     */
+    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
+        this.evaluateAllTerms = evaluateAllTerms;
+    }
 
 }

@@ -42,7 +42,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,
+       proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SpecificationMap {
 
     private static final Logger log = LoggerFactory.getLogger(SpecificationMap.class);
@@ -52,8 +53,13 @@ public class SpecificationMap {
     private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
     private Properties properties = new Properties();
 
+    private SpecificationMap() {
+
+    }
+
     @Autowired
-    private SpecificationMap(NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate, MapUtils mapUtils) {
+    private SpecificationMap(NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate,
+                             MapUtils mapUtils) {
         this.notNullOrEmptyStringObjectPredicate = notNullOrEmptyStringObjectPredicate;
         this.mapUtils = mapUtils;
     }
@@ -106,7 +112,7 @@ public class SpecificationMap {
                                     "instantiate a concrete object " + "for it because of an Exception of type '" + e
                                     .getClass().getName() + "'. The class that declares the underlying constructor "
                                     + "represents an abstract class. " + " The associated message for this Exception " +
-                                    "" + "is: " + e.getMessage();
+                                    "" + "" + "" + "is: " + e.getMessage();
                             log.error(message);
                         } catch (NoSuchMethodException e2) {
                             spec = clazz.newInstance();
@@ -132,9 +138,10 @@ public class SpecificationMap {
 
                 } catch (InstantiationException e) {
                     String message = "The class '" + className + "' exists but, it was not possible to instantiate a " +
-                            "" + "concrete object " + "for it because of an Exception of type '" + e.getClass()
-                            .getName() + "'. The class that declares the underlying constructor represents an " +
-                            "abstract class. " + " The associated message for this Exception is: " + e.getMessage();
+                            "" + "" + "" + "concrete object " + "for it because of an Exception of type '" + e
+                            .getClass().getName() + "'. The class that declares the underlying constructor represents" +
+                            " an " + "abstract class. " + " The associated message for this Exception is: " + e
+                            .getMessage();
                     log.error(message);
                     throw new ExpressionException(message);
                 } catch (IllegalAccessException e) {
@@ -219,7 +226,7 @@ public class SpecificationMap {
         return getSpecificationsMap().get(method);
     }
 
-    private Map<String, Specification> getSpecificationsMap() {
+    public Map<String, Specification> getSpecificationsMap() {
         return getSpecificationMap();
     }
 
@@ -251,9 +258,9 @@ public class SpecificationMap {
                 return clazz.newInstance();
             } catch (ClassNotFoundException e) {
                 String message = "It was not possible to find class '" + className + "' because of an Exception of "
-                        + "type '" + e.getClass().getName() + "'. Does that class really exists and its reacheable by" +
-                        " " + "the current classloader?." + " The associated message for this Exception is: " + e
-                        .getMessage();
+                        + "type '" + e.getClass().getName() + "'. Does that class really exists and its reacheable "
+                        + "by" + " " + "the current classloader?." + " The associated message for this Exception is: " +
+                        "" + e.getMessage();
                 log.error(message);
             } catch (InstantiationException e) {
                 String message = "It was not possible to instantiate a concrete object for class " + className + "' "
@@ -264,8 +271,8 @@ public class SpecificationMap {
                 log.error(message);
             } catch (IllegalAccessException e) {
                 String message = "It was not possible to instantiate a concrete object for class " + className + "' "
-                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably the class or " +
-                        "its " + "nullary constructor is not accessible." + " The associated message for this " +
+                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably the class or "
+                        + "its " + "nullary constructor is not accessible." + " The associated message for this " +
                         "Exception is: " + e.getMessage();
                 log.error(message);
             }
@@ -288,8 +295,8 @@ public class SpecificationMap {
                 log.error(message);
             } catch (IllegalAccessException e) {
                 String message = "It was not possible to instantiate a concrete object for class " + className + "' "
-                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably the class or " +
-                        "its " + "nullary constructor is not accessible." + "The associated message for this " +
+                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably the class or "
+                        + "its " + "nullary constructor is not accessible." + "The associated message for this " +
                         "Exception is: " + e.getMessage();
                 log.error(message);
             }

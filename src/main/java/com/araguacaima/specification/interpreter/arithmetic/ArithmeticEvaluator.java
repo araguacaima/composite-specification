@@ -30,9 +30,11 @@ import com.araguacaima.specification.interpreter.exception.InvalidExpressionExce
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.TransformerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class ArithmeticEvaluator implements Evaluator {
 
     private static final Character ADD = '+';

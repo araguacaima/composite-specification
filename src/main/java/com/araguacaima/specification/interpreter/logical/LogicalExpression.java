@@ -43,14 +43,8 @@ public abstract class LogicalExpression implements Expression {
         setEvaluateAllTerms(evaluateAllTerms);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param evaluateAllTerms
-     */
-    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
-        this.evaluateAllTerms = evaluateAllTerms;
-    }
+    public abstract Expression evaluate(Context c)
+            throws ExpressionException, ContextException;
 
     /**
      * {@inheritDoc}
@@ -62,5 +56,12 @@ public abstract class LogicalExpression implements Expression {
         return evaluateAllTerms;
     }
 
-    public abstract Expression evaluate(Context c) throws ExpressionException, ContextException;
+    /**
+     * {@inheritDoc}
+     *
+     * @param evaluateAllTerms
+     */
+    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
+        this.evaluateAllTerms = evaluateAllTerms;
+    }
 }

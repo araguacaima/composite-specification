@@ -26,9 +26,8 @@ import com.araguacaima.specification.interpreter.exception.ExpressionException;
 
 public abstract class LogicalArithmeticExpression implements Expression {
 
-    double value;
     boolean condition;
-
+    double value;
     private boolean evaluateAllTerms = false;
 
     LogicalArithmeticExpression() {
@@ -40,6 +39,11 @@ public abstract class LogicalArithmeticExpression implements Expression {
 
     }
 
+    private LogicalArithmeticExpression(double value, boolean evaluateAllTerms) {
+        this.value = value;
+        setEvaluateAllTerms(evaluateAllTerms);
+    }
+
     LogicalArithmeticExpression(boolean condition) {
         this(condition, false);
     }
@@ -49,19 +53,8 @@ public abstract class LogicalArithmeticExpression implements Expression {
         setEvaluateAllTerms(evaluateAllTerms);
     }
 
-    private LogicalArithmeticExpression(double value, boolean evaluateAllTerms) {
-        this.value = value;
-        setEvaluateAllTerms(evaluateAllTerms);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param evaluateAllTerms
-     */
-    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
-        this.evaluateAllTerms = evaluateAllTerms;
-    }
+    public abstract Expression evaluate(Context c)
+            throws ExpressionException, ContextException;
 
     /**
      * {@inheritDoc}
@@ -73,6 +66,13 @@ public abstract class LogicalArithmeticExpression implements Expression {
         return evaluateAllTerms;
     }
 
-    public abstract Expression evaluate(Context c) throws ExpressionException, ContextException;
+    /**
+     * {@inheritDoc}
+     *
+     * @param evaluateAllTerms
+     */
+    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
+        this.evaluateAllTerms = evaluateAllTerms;
+    }
 
 }

@@ -19,16 +19,22 @@
 
 package com.araguacaima.specification.interpreter.arithmetic;
 
+import com.araguacaima.specification.Specification;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.exception.ContextException;
-import com.araguacaima.specification.Specification;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class ArithmeticContext implements Context {
     private final HashMap varList = new HashMap();
     private Specification specification;
+
+    public ArithmeticContext() {
+
+    }
 
     public void assign(String var, double value) {
         varList.put(var, value);
@@ -43,27 +49,23 @@ public class ArithmeticContext implements Context {
         varList.put(var, parameter);
     }
 
+    public Map getContextElements() {
+        return varList;
+    }
+
     public Object getContextObject(String var) {
         return varList.get(var);
     }
 
-    public double getValue(String var) throws ContextException {
+    public double getValue(String var)
+            throws ContextException {
         try {
             return (Double) varList.get(var);
         } catch (NullPointerException npe) {
-            throw new ContextException("There is no context setted for term '"
-                    + var
-                    + "'. Please initialize a valid value for it");
+            throw new ContextException("There is no context setted for term '" + var + "'. Please initialize a valid " +
+                    "" + "value for it");
         }
 
-    }
-
-    public ArithmeticContext() {
-
-    }
-
-    public Map getContextElements() {
-        return varList;
     }
 }
 

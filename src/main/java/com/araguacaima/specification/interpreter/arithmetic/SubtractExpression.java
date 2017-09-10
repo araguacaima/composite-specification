@@ -29,15 +29,25 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class SubtractExpression extends NonTerminalArithmeticExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public SubtractExpression(Expression l, Expression r) {
+        super(l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         if (getEvaluateAllTerms()) {
             double result1 = (Double) getLeftNode().evaluate(c).getValue();
             double result2 = (Double) getRightNode().evaluate(c).getValue();
             return new ArithmeticExpressionImpl(result1 - result2);
         } else {
-            return new ArithmeticExpressionImpl((Double) getLeftNode().evaluate(c).getValue()
-                    - (Double) getRightNode().evaluate(c).getValue());
+            return new ArithmeticExpressionImpl((Double) getLeftNode().evaluate(c).getValue() - (Double) getRightNode
+                    ().evaluate(
+                    c).getValue());
         }
+    }
+
+    public Object getCondition() {
+        return null;
     }
 
     public Collection getTerms() {
@@ -49,13 +59,5 @@ public class SubtractExpression extends NonTerminalArithmeticExpression {
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public SubtractExpression(Expression l, Expression r) {
-        super(l, r);
     }
 }// SubtractExpressionLogical

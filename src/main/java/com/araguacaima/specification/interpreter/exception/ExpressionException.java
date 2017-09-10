@@ -19,6 +19,9 @@
 
 package com.araguacaima.specification.interpreter.exception;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class ExpressionException extends Exception {
 
     ExpressionException() {

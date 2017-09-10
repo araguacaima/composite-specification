@@ -23,5 +23,6 @@ import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 
 public interface TerminalExpression {
-    Expression evaluate(Context c) throws ExpressionException, ContextException;
+    Expression evaluate(Context c)
+            throws ExpressionException, ContextException;
 }

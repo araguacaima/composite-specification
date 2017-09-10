@@ -44,24 +44,6 @@ public class NotSpecification extends AbstractSpecification {
         this.spec1 = spec1;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param object
-     * @param map
-     */
-    public boolean isSatisfiedBy(Object object, final Map map) throws Exception {
-        return !spec1.isSatisfiedBy(object, map);
-    }
-
-    public Specification getLeftNode() {
-        return spec1;
-    }
-
-    public Specification getRightNode() {
-        return null;
-    }
-
     public Collection<Object> getTerms() {
         Collection<Object> terms = new ArrayList();
         Specification left = getLeftNode();
@@ -73,6 +55,25 @@ public class NotSpecification extends AbstractSpecification {
             terms.addAll(right.getTerms());
         }
         return terms;
+    }
+
+    public Specification getLeftNode() {
+        return spec1;
+    }
+
+    public Specification getRightNode() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param object
+     * @param map
+     */
+    public boolean isSatisfiedBy(Object object, final Map map)
+            throws Exception {
+        return !spec1.isSatisfiedBy(object, map);
     }
 
 }

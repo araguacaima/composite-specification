@@ -30,7 +30,16 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class AndExpression extends NonTerminalLogicalExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public AndExpression(Expression l, Expression r) {
+        this(false, l, r);
+    }
+
+    public AndExpression(boolean evaluateAllTerms, Expression l, Expression r) {
+        super(evaluateAllTerms, l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         if (getEvaluateAllTerms()) {
             Expression expressionLeftEvaluated = getLeftNode().evaluate(c);
             Object objectLeft;
@@ -84,6 +93,10 @@ public class AndExpression extends NonTerminalLogicalExpression {
         }
     }
 
+    public Object getCondition() {
+        return null;
+    }
+
     public Collection getTerms() {
         Collection terms = new ArrayList();
         terms.addAll(getLeftNode().getTerms());
@@ -93,17 +106,5 @@ public class AndExpression extends NonTerminalLogicalExpression {
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public AndExpression(Expression l, Expression r) {
-        this(false, l, r);
-    }
-
-    public AndExpression(boolean evaluateAllTerms, Expression l, Expression r) {
-        super(evaluateAllTerms, l, r);
     }
 }// AddExpressionLogical

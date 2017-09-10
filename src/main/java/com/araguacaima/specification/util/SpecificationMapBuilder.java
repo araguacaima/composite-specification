@@ -19,29 +19,27 @@
 package com.araguacaima.specification.util;
 
 import com.araguacaima.commons.utils.MapUtils;
-import com.araguacaima.commons.utils.PropertiesHandler;
 import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+@SuppressWarnings("WeakerAccess")
 @Service
-public class SpecificationMapBuilder implements ApplicationContextAware{
+public class SpecificationMapBuilder implements ApplicationContextAware {
 
     private final Map<String, SpecificationMap> instancesMap = new HashMap<>();
     private ApplicationContext applicationContext;
     private MapUtils mapUtils;
-    private PropertiesHandlerUtils propertiesHandlerUtils;
     private String propertiesFile = "specification.properties";
+    private PropertiesHandlerUtils propertiesHandlerUtils;
 
     @Autowired
     public SpecificationMapBuilder(MapUtils mapUtils, PropertiesHandlerUtils propertiesHandlerUtils) {
@@ -84,7 +82,7 @@ public class SpecificationMapBuilder implements ApplicationContextAware{
         return instancesMap.get(clazz.getName());
     }
 
-    private SpecificationMap getInstance(Map<String, String> map, Class clazz) {
+    public SpecificationMap getInstance(Map<String, String> map, Class clazz) {
         return buildInstance(mapUtils.toProperties(map), clazz, false, clazz.getClassLoader());
     }
 

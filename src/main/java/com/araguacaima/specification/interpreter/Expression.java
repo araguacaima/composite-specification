@@ -26,17 +26,10 @@ import java.util.Collection;
 
 public interface Expression {
 
-    /**
-     * Indicates if its required to evaluate individually all terms before determine the final logical result of
-     * the expression
-     *
-     * @param evaluateAllTerms A value of true indicates that its pretended to evaluate all terms indenpendently of is
-     *                         logical result before determine the final logical result of the entire expression. A
-     *                         value of false indicates that the evaluation breaks in any condition (term) return a
-     *                         value that satisfy the entire expression without the need of evaluate the remaining terms.
-     *                         The default value is false.
-     */
-    void setEvaluateAllTerms(boolean evaluateAllTerms);
+    Expression evaluate(Context c)
+            throws ExpressionException, ContextException;
+
+    Object getCondition();
 
     /**
      * Obtains the value of the evaluateAllTerms field
@@ -45,15 +38,24 @@ public interface Expression {
      */
     boolean getEvaluateAllTerms();
 
-    Expression evaluate(Context c) throws ExpressionException, ContextException;
-
-    Collection getTerms();
-
-    Object getValue();
-
-    Object getCondition();
+    /**
+     * Indicates if its required to evaluate individually all terms before determine the final logical result of
+     * the expression
+     *
+     * @param evaluateAllTerms A value of true indicates that its pretended to evaluate all terms indenpendently of is
+     *                         logical result before determine the final logical result of the entire expression. A
+     *                         value of false indicates that the evaluation breaks in any condition (term) return a
+     *                         value that satisfy the entire expression without the need of evaluate the remaining
+     *                         terms.
+     *                         The default value is false.
+     */
+    void setEvaluateAllTerms(boolean evaluateAllTerms);
 
     Expression getLeftNode();
 
     Expression getRightNode();
+
+    Collection getTerms();
+
+    Object getValue();
 }

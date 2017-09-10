@@ -29,12 +29,25 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class LogicalEqExpression extends NonTerminalLogicalExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public LogicalEqExpression(Expression l, Expression r) {
+        this(false, l, r);
+    }
+
+    public LogicalEqExpression(boolean evaluateAllTerms, Expression l, Expression r) {
+        super(evaluateAllTerms, l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
 
         boolean resutl1 = (Boolean) getLeftNode().evaluate(c).getValue();
         boolean resutl2 = (Boolean) getRightNode().evaluate(c).getValue();
         return new LogicalExpressionImpl((resutl1 && resutl2) || (!resutl1 && !resutl2));
 
+    }
+
+    public Object getCondition() {
+        return null;
     }
 
     public Collection getTerms() {
@@ -46,17 +59,5 @@ public class LogicalEqExpression extends NonTerminalLogicalExpression {
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public LogicalEqExpression(Expression l, Expression r) {
-        this(false, l, r);
-    }
-
-    public LogicalEqExpression(boolean evaluateAllTerms, Expression l, Expression r) {
-        super(evaluateAllTerms, l, r);
     }
 }// LogicalEqExpression

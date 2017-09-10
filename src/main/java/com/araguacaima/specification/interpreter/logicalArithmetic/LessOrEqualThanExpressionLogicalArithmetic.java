@@ -29,7 +29,12 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class LessOrEqualThanExpressionLogicalArithmetic extends NonTerminalLogicalArithmeticExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public LessOrEqualThanExpressionLogicalArithmetic(Expression l, Expression r) {
+        super(l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         try {
             double result1 = (Double) getLeftNode().evaluate(c).getValue();
             double result2 = (Double) getRightNode().evaluate(c).getValue();
@@ -37,6 +42,10 @@ public class LessOrEqualThanExpressionLogicalArithmetic extends NonTerminalLogic
         } catch (ArithmeticException ae) {
             throw new ExpressionException(ae.getMessage());
         }
+    }
+
+    public Object getCondition() {
+        return null;
     }
 
     public Collection getTerms() {
@@ -48,14 +57,6 @@ public class LessOrEqualThanExpressionLogicalArithmetic extends NonTerminalLogic
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public LessOrEqualThanExpressionLogicalArithmetic(Expression l, Expression r) {
-        super(l, r);
     }
 
 }

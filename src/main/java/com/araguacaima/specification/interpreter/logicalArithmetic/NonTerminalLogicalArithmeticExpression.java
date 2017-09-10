@@ -43,19 +43,19 @@ public abstract class NonTerminalLogicalArithmeticExpression extends LogicalArit
         super(value);
     }
 
-    private void setLeftNode(Expression node) {
-        leftNode = node;
-    }
-
-    private void setRightNode(Expression node) {
-        rightNode = node;
-    }
-
     public Expression getLeftNode() {
         return leftNode;
     }
 
+    private void setLeftNode(Expression node) {
+        leftNode = node;
+    }
+
     public Expression getRightNode() {
         return rightNode;
+    }
+
+    private void setRightNode(Expression node) {
+        rightNode = node;
     }
 }// NonTerminalExpression

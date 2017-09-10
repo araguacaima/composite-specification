@@ -29,19 +29,29 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class DivideExpression extends NonTerminalArithmeticExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public DivideExpression(Expression l, Expression r) {
+        super(l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         try {
             if (getEvaluateAllTerms()) {
                 double result1 = (Double) getLeftNode().evaluate(c).getValue();
                 double result2 = (Double) getRightNode().evaluate(c).getValue();
                 return new ArithmeticExpressionImpl(result1 / result2);
             } else {
-                return new ArithmeticExpressionImpl((Double) getLeftNode().evaluate(c).getValue()
-                        / (Double) getRightNode().evaluate(c).getValue());
+                return new ArithmeticExpressionImpl((Double) getLeftNode().evaluate(c).getValue() / (Double)
+                        getRightNode().evaluate(
+                        c).getValue());
             }
         } catch (ArithmeticException ae) {
             throw new ExpressionException(ae.getMessage());
         }
+    }
+
+    public Object getCondition() {
+        return null;
     }
 
     public Collection getTerms() {
@@ -53,14 +63,6 @@ public class DivideExpression extends NonTerminalArithmeticExpression {
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public DivideExpression(Expression l, Expression r) {
-        super(l, r);
     }
 
 }

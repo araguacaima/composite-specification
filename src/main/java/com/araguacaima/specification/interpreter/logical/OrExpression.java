@@ -30,7 +30,16 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class OrExpression extends NonTerminalLogicalExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public OrExpression(Expression l, Expression r) {
+        this(false, l, r);
+    }
+
+    public OrExpression(boolean evaluateAllTerms, Expression l, Expression r) {
+        super(evaluateAllTerms, l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         if (getEvaluateAllTerms()) {
             Expression expressionLeftEvaluated = getLeftNode().evaluate(c);
             Object objectLeft;
@@ -85,6 +94,10 @@ public class OrExpression extends NonTerminalLogicalExpression {
 
     }
 
+    public Object getCondition() {
+        return null;
+    }
+
     public Collection getTerms() {
         Collection terms = new ArrayList();
         terms.addAll(getLeftNode().getTerms());
@@ -94,17 +107,5 @@ public class OrExpression extends NonTerminalLogicalExpression {
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public OrExpression(Expression l, Expression r) {
-        this(false, l, r);
-    }
-
-    public OrExpression(boolean evaluateAllTerms, Expression l, Expression r) {
-        super(evaluateAllTerms, l, r);
     }
 }// OrExpression
