@@ -19,6 +19,7 @@
 
 package com.araguacaima.specification.interpreter.arithmetic;
 
+import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Evaluator;
 import com.araguacaima.specification.interpreter.Expression;
@@ -26,30 +27,21 @@ import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.exception.InvalidExpressionException;
-import com.araguacaima.commons.utils.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.TransformerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class ArithmeticEvaluator implements Evaluator {
 
-    private String expression;
-    private boolean evaluateAllTerms;
-    private static final HashMap operators = new HashMap();
-    private Context ctx;
-
     private static final Character ADD = '+';
-    private static final Character SUB = '-';
+    private static final Character CLOSING_PARENTHESIS = ')';
     private static final Character DIV = '/';
     private static final Character MUL = '*';
     private static final Character STARTING_PARENTHESIS = '(';
-    private static final Character CLOSING_PARENTHESIS = ')';
+    private static final Character SUB = '-';
+    private static final HashMap operators = new HashMap();
 
     static {
         operators.put(ADD, "1");
@@ -60,8 +52,15 @@ public class ArithmeticEvaluator implements Evaluator {
         operators.put(CLOSING_PARENTHESIS, "0");
     }
 
-    public ArithmeticEvaluator() {
+    private Context ctx;
+    private boolean evaluateAllTerms;
+    private String expression;
+    private StringUtils stringUtils;
+
+    @Autowired
+    public ArithmeticEvaluator(StringUtils stringUtils) {
         this(false);
+        this.stringUtils = stringUtils;
     }
 
     public ArithmeticEvaluator(boolean evaluateAllTerms) {
@@ -69,35 +68,26 @@ public class ArithmeticEvaluator implements Evaluator {
         setEvaluateAllTerms(evaluateAllTerms);
     }
 
-    public void setContext(Context c) {
-        ctx = c;
-    }
-
-    public void setContext(final Map<String, String> contextMap) {
-        final ArithmeticContext c = new ArithmeticContext();
-        if (contextMap != null) {
-            CollectionUtils.forAllDo(contextMap.keySet(), o -> {
-                String key = (String) o;
-                c.assign(key, (Double) contextMap.get(key));
-            });
-        }
-        ctx = c;
+    public static Map getFullOperators() {
+        return operators;
     }
 
     public void addToContext(String key, String value) {
         ((ArithmeticContext) ctx).assign(key, Double.valueOf(value));
     }
 
-    public void setExpression(String expr) {
-        expression = expr;
-    }
-
-    public Double evaluate(Context c) throws ExpressionException, ContextException {
+    public Double evaluate(Context c)
+            throws ExpressionException, ContextException {
         setContext(c);
         return evaluate();
     }
 
-    private double evaluate() throws ExpressionException, ContextException {
+    public void setContext(Context c) {
+        ctx = c;
+    }
+
+    private double evaluate()
+            throws ExpressionException, ContextException {
 
         //build the Binary Tree
         Expression rootNode = buildExpressionTree();
@@ -110,65 +100,18 @@ public class ArithmeticEvaluator implements Evaluator {
         }
     }
 
-    public NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r) {
-        if (operation.trim().equals(ADD.toString())) {
-            return new AddExpression(l, r);
-        }
-        if (operation.trim().equals(SUB.toString())) {
-            return new SubtractExpression(l, r);
-        }
-        if (operation.trim().equals(MUL.toString())) {
-            return new MultiplyExpression(l, r);
-        }
-        if (operation.trim().equals(DIV.toString())) {
-            return new DivideExpression(l, r);
-        }
-        return null;
-    }
-
-    public Expression buildTree(String expr) {
-        Stack s = new Stack();
-        Collection <String> symbolOperators = getOperators();
-        CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = StringUtils.splitBySeparators(expression, symbolOperators);
-        for (int i = 0; i < expr.length(); ) {
-            String currChar = expr.substring(i, 1);
-
-            if (!isOperator(currChar)) {
-                int limit = StringUtils.firstIndexOf(expr, symbolOperators);
-                if (limit == -1) {
-                    limit = expr.length();
-                }
-                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
-                tokens.remove(token);
-                Expression e = new TerminalArithmeticExpression(token);
-                s.push(e);
-                expr = expr.substring(token.length()).trim();
-            } else {
-                Expression r = (Expression) s.pop();
-                Expression l = (Expression) s.pop();
-                Expression n = getNonTerminalExpression(currChar, l, r);
-                s.push(n);
-                expr = expr.substring(1).trim();
-            }
-        }//for
-        return s.size() == 0
-                ? null
-                : (Expression) s.pop();
-    }
-
-    public boolean isOperator(String str) {
-        String incoming = str.trim();
-        return operators.containsKey(incoming.charAt(0));
+    public Expression buildExpressionTree() {
+        String pfExpr = infixToPostFix(expression);
+        return buildTree(pfExpr);
     }
 
     public String infixToPostFix(String str) {
         Stack s = new Stack();
         StringBuilder pfExpr = new StringBuilder();
         String tempStr;
-        Collection <String>symbolOperators = getOperators();
+        Collection<String> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        if (!StringUtils.isNullOrEmpty(str)) {
+        if (!StringUtils.isBlank(str)) {
             for (int i = 0; i < str.length(); ) {
                 String currChar = str.substring(i, 1);
                 if ((!isOperator(currChar)) && (!currChar.equals(STARTING_PARENTHESIS.toString())) && (!currChar.equals(
@@ -234,28 +177,73 @@ public class ArithmeticEvaluator implements Evaluator {
         return pfExpr.toString();
     }
 
+    public Expression buildTree(String expr) {
+        Stack s = new Stack();
+        Collection<String> symbolOperators = getOperators();
+        CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
+        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
+        for (int i = 0; i < expr.length(); ) {
+            String currChar = expr.substring(i, 1);
+
+            if (!isOperator(currChar)) {
+                int limit = StringUtils.firstIndexOf(expr, symbolOperators);
+                if (limit == -1) {
+                    limit = expr.length();
+                }
+                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                tokens.remove(token);
+                Expression e = new TerminalArithmeticExpression(token);
+                s.push(e);
+                expr = expr.substring(token.length()).trim();
+            } else {
+                Expression r = (Expression) s.pop();
+                Expression l = (Expression) s.pop();
+                Expression n = getNonTerminalExpression(currChar, l, r);
+                s.push(n);
+                expr = expr.substring(1).trim();
+            }
+        }//for
+        return s.size() == 0 ? null : (Expression) s.pop();
+    }
+
     private static Collection<String> getOperators() {
         return new HashSet(operators.keySet());
     }
 
-    public Expression buildExpressionTree() {
-        String pfExpr = infixToPostFix(expression);
-        return buildTree(pfExpr);
+    public boolean isOperator(String str) {
+        String incoming = str.trim();
+        return operators.containsKey(incoming.charAt(0));
     }
 
-    public Collection getTokens() {
-        Expression exp = buildExpressionTree();
-        return exp == null
-                ? new ArrayList()
-                : exp.getTerms();
-    }
-
-    public String getExpression() {
-        return expression;
+    public NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r) {
+        if (operation.trim().equals(ADD.toString())) {
+            return new AddExpression(l, r);
+        }
+        if (operation.trim().equals(SUB.toString())) {
+            return new SubtractExpression(l, r);
+        }
+        if (operation.trim().equals(MUL.toString())) {
+            return new MultiplyExpression(l, r);
+        }
+        if (operation.trim().equals(DIV.toString())) {
+            return new DivideExpression(l, r);
+        }
+        return null;
     }
 
     public Context getContext() {
         return ctx;
+    }
+
+    public void setContext(final Map<String, Object> contextMap) {
+        final ArithmeticContext c = new ArithmeticContext();
+        if (contextMap != null) {
+            CollectionUtils.forAllDo(contextMap.keySet(), o -> {
+                String key = (String) o;
+                c.assign(key, (Double) contextMap.get(key));
+            });
+        }
+        ctx = c;
     }
 
     public boolean getEvaluateAllTerms() {
@@ -266,8 +254,17 @@ public class ArithmeticEvaluator implements Evaluator {
         this.evaluateAllTerms = evaluateAllTerms;
     }
 
-    public static Map getFullOperators() {
-        return operators;
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expr) {
+        expression = expr;
+    }
+
+    public Collection getTokens() {
+        Expression exp = buildExpressionTree();
+        return exp == null ? new ArrayList() : exp.getTerms();
     }
 
 } // End of class

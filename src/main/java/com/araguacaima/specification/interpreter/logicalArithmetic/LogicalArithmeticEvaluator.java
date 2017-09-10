@@ -33,6 +33,8 @@ import com.araguacaima.specification.Specification;
 import com.araguacaima.commons.utils.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.TransformerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +43,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Stack;
 
+@Component
 public class LogicalArithmeticEvaluator implements Evaluator {
 
     private String expression;
@@ -63,6 +66,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     private static final Character MUL = '*';
     private static final Character STARTING_PARENTHESIS = '(';
     private static final Character CLOSING_PARENTHESIS = ')';
+    private StringUtils stringUtils;
 
     static {
         operators.put(GT, "6");
@@ -82,8 +86,10 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         operators.put(CLOSING_PARENTHESIS, "0");
     }
 
-    public LogicalArithmeticEvaluator() {
+    @Autowired
+    public LogicalArithmeticEvaluator(StringUtils stringUtils) {
         this(false);
+        this.stringUtils = stringUtils;
     }
 
     public LogicalArithmeticEvaluator(boolean evaluateAllTerms) {
@@ -95,7 +101,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         ctx = c;
     }
 
-    public void setContext(final Map<String, String> contextMap) {
+    public void setContext(final Map<String, Object> contextMap) {
         final LogicalArithmeticContext c = new LogicalArithmeticContext();
         if (contextMap != null) {
             CollectionUtils.forAllDo(contextMap.keySet(), o -> {
@@ -178,7 +184,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         Stack s = new Stack();
         Collection <String> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = StringUtils.splitBySeparators(expression, symbolOperators);
+        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
 
@@ -187,7 +193,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
                 if (limit == -1) {
                     limit = expr.length();
                 }
-                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
                 tokens.remove(token);
                 Expression e = new TerminalLogicalArithmeticExpression(token);
                 s.push(e);
@@ -216,7 +222,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         String tempStr;
         Collection <String>symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        if (!StringUtils.isNullOrEmpty(str)) {
+        if (!StringUtils.isBlank(str)) {
             for (int i = 0; i < str.length(); ) {
                 String currChar = str.substring(i, 1);
                 if ((!isOperator(currChar)) && (!currChar.equals(STARTING_PARENTHESIS.toString())) && (!currChar.equals(

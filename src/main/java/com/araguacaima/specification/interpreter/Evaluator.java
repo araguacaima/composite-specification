@@ -20,14 +20,15 @@
 package com.araguacaima.specification.interpreter;
 
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
 
 public interface Evaluator {
 
-    Logger log = Logger.getLogger(Evaluator.class);
+    Logger log = LoggerFactory.getLogger(Evaluator.class);
 
     boolean isOperator(String str);
 
@@ -56,7 +57,7 @@ public interface Evaluator {
 
     void setContext(Context c);
 
-    void setContext(Map<String, String> contextMap);
+    void setContext(Map<String, Object> contextMap);
 
     void addToContext(String key, String value);
 

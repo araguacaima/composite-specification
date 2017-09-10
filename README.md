@@ -1,4 +1,4 @@
-![amma logo](/docs/resources/amma-logo.png "AmMa Logo") raguacaima
+![amma logo](./docs/resources/amma-logo.png "AmMa Logo") raguacaima
 ===
 
 ToC

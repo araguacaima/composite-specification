@@ -29,6 +29,7 @@ import com.araguacaima.specification.interpreter.exception.InvalidExpressionExce
 import com.araguacaima.commons.utils.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.TransformerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +52,7 @@ public class LogicalEvaluator implements Evaluator {
     public static final Character NOT = '¬';
     public static final Character STARTING_PARENTHESIS = '(';
     public static final Character CLOSING_PARENTHESIS = ')';
+    private StringUtils stringUtils;
 
     static {
         operators.put(AND, "1");
@@ -62,8 +64,10 @@ public class LogicalEvaluator implements Evaluator {
         operators.put(CLOSING_PARENTHESIS, "0");
     }
 
-    public LogicalEvaluator() {
+    @Autowired
+    public LogicalEvaluator(StringUtils stringUtils) {
         this(false);
+        this.stringUtils = stringUtils;
     }
 
     public LogicalEvaluator(boolean evaluateAllTerms) {
@@ -75,7 +79,7 @@ public class LogicalEvaluator implements Evaluator {
         ctx = c;
     }
 
-    public void setContext(final Map<String, String> contextMap) {
+    public void setContext(final Map<String, Object> contextMap) {
         final LogicalContext c = new LogicalContext();
         if (contextMap != null) {
             CollectionUtils.forAllDo(contextMap.keySet(), o -> {
@@ -136,7 +140,7 @@ public class LogicalEvaluator implements Evaluator {
         Stack s = new Stack();
         Collection <Character>symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = StringUtils.splitBySeparators(expression, symbolOperators);
+        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
 
@@ -150,7 +154,7 @@ public class LogicalEvaluator implements Evaluator {
                 if (limit == -1) {
                     limit = expr.length();
                 }
-                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
                 tokens.remove(token);
                 Expression e = new TerminalLogicalExpression(getEvaluateAllTerms(), token);
                 s.push(e);
@@ -196,7 +200,7 @@ public class LogicalEvaluator implements Evaluator {
         String tempStr;
         Collection <Character>symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        if (!StringUtils.isNullOrEmpty(str)) {
+        if (!StringUtils.isBlank(str)) {
             for (int i = 0; i < str.length(); ) {
                 String currChar = str.substring(i, 1);
                 if ((!isOperator(currChar)) && (!currChar.equals(STARTING_PARENTHESIS.toString())) && (!currChar.equals(

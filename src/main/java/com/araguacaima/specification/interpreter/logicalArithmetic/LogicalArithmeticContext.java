@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LogicalArithmeticContext implements Context {
-    private final HashMap<String, Double> varList = new HashMap<String, Double>();
+    private final HashMap<String, Object> varList = new HashMap<>();
     private Specification specification;
 
     public void assign(String var, double value) {
