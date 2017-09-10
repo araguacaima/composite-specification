@@ -19,7 +19,6 @@
 package com.araguacaima.specification.util;
 
 import com.araguacaima.commons.utils.MapUtils;
-import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -39,16 +38,10 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
     private ApplicationContext applicationContext;
     private MapUtils mapUtils;
     private String propertiesFile = "specification.properties";
-    private PropertiesHandlerUtils propertiesHandlerUtils;
 
     @Autowired
-    public SpecificationMapBuilder(MapUtils mapUtils, PropertiesHandlerUtils propertiesHandlerUtils) {
+    public SpecificationMapBuilder(MapUtils mapUtils) {
         this.mapUtils = mapUtils;
-    }
-
-    public SpecificationMap getInstance()
-            throws IOException {
-        return getInstance(SpecificationMapBuilder.class.getClass());
     }
 
     private SpecificationMap getInstance(Class clazz)
@@ -68,11 +61,17 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
                                            boolean replace,
                                            ClassLoader classLoader) {
         if (instancesMap.get(clazz.getName()) == null) {
-            SpecificationMap instance = new SpecificationMap(clazz, properties, classLoader);
+            SpecificationMap instance = applicationContext.getBean(SpecificationMap.class);
+            instance.setClassName(clazz.getName());
+            instance.setProperties(properties);
+            instance.buildSpecificationMap(classLoader);
             instancesMap.put(clazz.getName(), instance);
         } else {
             if (replace) {
-                SpecificationMap newInstance = new SpecificationMap(clazz, properties, classLoader);
+                SpecificationMap newInstance = applicationContext.getBean(SpecificationMap.class);
+                newInstance.setClassName(clazz.getName());
+                newInstance.setProperties(properties);
+                newInstance.buildSpecificationMap(classLoader);
                 SpecificationMap oldInstance = instancesMap.get(clazz.getName());
                 newInstance.getProperties().putAll(oldInstance.getProperties());
                 instancesMap.remove(clazz.getName());

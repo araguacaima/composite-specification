@@ -63,13 +63,8 @@ public class LogicalEvaluator implements Evaluator {
 
     @Autowired
     public LogicalEvaluator(StringUtils stringUtils) {
-        this(false);
+        this.evaluateAllTerms = false;
         this.stringUtils = stringUtils;
-    }
-
-    public LogicalEvaluator(boolean evaluateAllTerms) {
-        super();
-        setEvaluateAllTerms(evaluateAllTerms);
     }
 
     public static Map getFullOperators() {

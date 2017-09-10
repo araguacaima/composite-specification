@@ -30,14 +30,17 @@ import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticContext;
 import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticEvaluator;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
 @Service
-public class EvaluatorMapBuilder {
+public class EvaluatorMapBuilder implements ApplicationContextAware {
 
     final String propertiesFile = "evaluator.properties";
     private ArithmeticEvaluator arithmeticEvaluator;
@@ -46,11 +49,15 @@ public class EvaluatorMapBuilder {
     private Map<String, Evaluator> logicalEvaluatorMap = new HashMap<>();
     private MapUtils mapUtils;
     private Properties properties = new Properties();
+    private ApplicationContext applicationContext;
 
     @Autowired
     private EvaluatorMapBuilder(ArithmeticEvaluator arithmeticEvaluator,
                                 LogicalArithmeticEvaluator logicalArithmeticEvaluator,
                                 LogicalEvaluator logicalEvaluator) {
+        this.arithmeticEvaluator = arithmeticEvaluator;
+        this.logicalArithmeticEvaluator = logicalArithmeticEvaluator;
+        this.logicalEvaluator = logicalEvaluator;
     }
 
     private EvaluatorMapBuilder(Properties prop) {
@@ -95,21 +102,21 @@ public class EvaluatorMapBuilder {
     private Evaluator buildExpression(String expression, boolean evaluateAllTerms)
             throws ExpressionException {
         try {
-            LogicalEvaluator logicalEvaluator = new LogicalEvaluator(evaluateAllTerms);
+            logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
             logicalEvaluator.setExpression(expression);
             logicalEvaluator.buildExpressionTree();
             return logicalEvaluator;
         } catch (Throwable ignored) {
         }
         try {
-            ArithmeticEvaluator arithmeticEvaluator = new ArithmeticEvaluator(evaluateAllTerms);
+            arithmeticEvaluator.setEvaluateAllTerms(evaluateAllTerms);
             arithmeticEvaluator.setExpression(expression);
             arithmeticEvaluator.buildExpressionTree();
             return arithmeticEvaluator;
         } catch (Throwable ignored) {
         }
         try {
-            LogicalArithmeticEvaluator logicalArithmeticEvaluator = new LogicalArithmeticEvaluator(evaluateAllTerms);
+            logicalArithmeticEvaluator.setEvaluateAllTerms(evaluateAllTerms);
             logicalArithmeticEvaluator.setExpression(expression);
             logicalArithmeticEvaluator.buildExpressionTree();
             return logicalArithmeticEvaluator;
@@ -260,4 +267,9 @@ public class EvaluatorMapBuilder {
         return tokens;
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

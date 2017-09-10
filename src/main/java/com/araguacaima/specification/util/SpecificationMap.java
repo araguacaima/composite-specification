@@ -43,12 +43,13 @@ import java.util.*;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,
-       proxyMode = ScopedProxyMode.TARGET_CLASS)
+       proxyMode = ScopedProxyMode.DEFAULT)
 public class SpecificationMap {
 
     private static final Logger log = LoggerFactory.getLogger(SpecificationMap.class);
     private final Map<String, Specification> specificationMap = new HashMap<>();
     private String className;
+    private LogicalEvaluator logicalEvaluator;
     private MapUtils mapUtils;
     private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
     private Properties properties = new Properties();
@@ -58,20 +59,11 @@ public class SpecificationMap {
     }
 
     @Autowired
-    private SpecificationMap(NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate,
-                             MapUtils mapUtils) {
+    public SpecificationMap(NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate,
+                            MapUtils mapUtils, LogicalEvaluator logicalEvaluator) {
         this.notNullOrEmptyStringObjectPredicate = notNullOrEmptyStringObjectPredicate;
         this.mapUtils = mapUtils;
-    }
-
-    public SpecificationMap(Class clazz, Properties properties, ClassLoader classLoader) {
-        this(clazz.getName(), properties, classLoader);
-    }
-
-    private SpecificationMap(String className, Properties properties, ClassLoader classLoader) {
-        this.properties = properties;
-        this.className = className;
-        buildsSpecificationMap(classLoader);
+        this.logicalEvaluator = logicalEvaluator;
     }
 
     public void addProperties(Properties properties) {
@@ -81,7 +73,7 @@ public class SpecificationMap {
     private Specification buildSpecification(boolean evaluateAllTerms, String expression, ClassLoader classLoader)
             throws ExpressionException {
         Specification result = new AbstractSpecificationImpl(evaluateAllTerms);
-        LogicalEvaluator logicalEvaluator = new LogicalEvaluator(evaluateAllTerms);
+        logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
         logicalEvaluator.setExpression(expression);
         return buildSpecificationFromExpression(logicalEvaluator.buildExpressionTree(), result, classLoader);
     }
@@ -112,7 +104,7 @@ public class SpecificationMap {
                                     "instantiate a concrete object " + "for it because of an Exception of type '" + e
                                     .getClass().getName() + "'. The class that declares the underlying constructor "
                                     + "represents an abstract class. " + " The associated message for this Exception " +
-                                    "" + "" + "" + "is: " + e.getMessage();
+                                    "" + "" + "" + "" + "" + "is: " + e.getMessage();
                             log.error(message);
                         } catch (NoSuchMethodException e2) {
                             spec = clazz.newInstance();
@@ -138,10 +130,10 @@ public class SpecificationMap {
 
                 } catch (InstantiationException e) {
                     String message = "The class '" + className + "' exists but, it was not possible to instantiate a " +
-                            "" + "" + "" + "concrete object " + "for it because of an Exception of type '" + e
-                            .getClass().getName() + "'. The class that declares the underlying constructor represents" +
-                            " an " + "abstract class. " + " The associated message for this Exception is: " + e
-                            .getMessage();
+                            "" + "" + "" + "" + "" + "concrete object " + "for it because of an Exception of type '"
+                            + e.getClass().getName() + "'. The class that declares the underlying constructor " +
+                            "represents" + " an " + "abstract class. " + " The associated message for this Exception " +
+                            "" + "is: " + e.getMessage();
                     log.error(message);
                     throw new ExpressionException(message);
                 } catch (IllegalAccessException e) {
@@ -171,15 +163,15 @@ public class SpecificationMap {
         return spec;
     }
 
-    private void buildsSpecificationMap(final ClassLoader classLoader) {
+    void buildSpecificationMap(final ClassLoader classLoader) {
         Collection<Object> classes = new ArrayList<>(properties.keySet());
 
         CollectionUtils.transform(classes, o -> {
             String key = ((String) o);
             return key.substring(0, key.lastIndexOf("."));
         });
-        Set<Object> classesSet = new HashSet<Object>(classes);
-        final Map propertiesByClass = new HashMap();
+        Set<Object> classesSet = new HashSet<>(classes);
+        final Map<Object, Object> propertiesByClass = new HashMap<>();
         CollectionUtils.forAllDo(classesSet, o -> {
             final String className = (String) o;
             propertiesByClass.putAll(mapUtils.select(properties,
@@ -205,10 +197,12 @@ public class SpecificationMap {
             try {
                 String property = (String) properties.get(className + "." + o);
                 if (StringUtils.isNotBlank(property)) {
-                    specificationMap.put(methodName, buildSpecification(evaluateAllTerms, property, classLoader));
+                    final Specification value = buildSpecification(evaluateAllTerms, property, classLoader);
+                    specificationMap.put(methodName, value);
 
                 }
             } catch (Exception ignored) {
+                ignored.printStackTrace();
             }
         });
 
@@ -223,14 +217,10 @@ public class SpecificationMap {
     }
 
     public Specification getSpecificationFromMethod(String method) {
-        return getSpecificationsMap().get(method);
+        return getSpecificationMap().get(method);
     }
 
-    public Map<String, Specification> getSpecificationsMap() {
-        return getSpecificationMap();
-    }
-
-    private Map<String, Specification> getSpecificationMap() {
+    public Map<String, Specification> getSpecificationMap() {
         return specificationMap;
     }
 
@@ -240,7 +230,7 @@ public class SpecificationMap {
 
     private Collection getTermsByMethod(String methodName, boolean evaluateAllTerms) {
         String expression = (String) properties.get(className + "." + methodName);
-        LogicalEvaluator logicalEvaluator = new LogicalEvaluator(evaluateAllTerms);
+        logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
         logicalEvaluator.setExpression(expression);
         Collection tokens = new ArrayList();
 
@@ -260,7 +250,7 @@ public class SpecificationMap {
                 String message = "It was not possible to find class '" + className + "' because of an Exception of "
                         + "type '" + e.getClass().getName() + "'. Does that class really exists and its reacheable "
                         + "by" + " " + "the current classloader?." + " The associated message for this Exception is: " +
-                        "" + e.getMessage();
+                        "" + "" + "" + e.getMessage();
                 log.error(message);
             } catch (InstantiationException e) {
                 String message = "It was not possible to instantiate a concrete object for class " + className + "' "
@@ -304,5 +294,9 @@ public class SpecificationMap {
         });
         CollectionUtils.predicatedCollection(tokens, o -> o instanceof Specification);
         return tokens;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 }

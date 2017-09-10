@@ -68,7 +68,7 @@ public class SpecificationMapBuilderTest {
     @Test
     public void testGetSpecificationsMap()
             throws Exception {
-        Map specifications = specificationMap.getSpecificationsMap();
+        Map specifications = specificationMap.getSpecificationMap();
         log.info("specifications: " + specifications);
     }
 

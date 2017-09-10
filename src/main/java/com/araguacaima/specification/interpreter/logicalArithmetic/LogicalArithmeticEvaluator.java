@@ -79,17 +79,14 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     private Context ctx;
     private boolean evaluateAllTerms;
     private String expression;
+    private LogicalEvaluator logicalEvaluator;
     private StringUtils stringUtils;
 
     @Autowired
-    public LogicalArithmeticEvaluator(StringUtils stringUtils) {
-        this(false);
+    public LogicalArithmeticEvaluator(StringUtils stringUtils, LogicalEvaluator logicalEvaluator) {
         this.stringUtils = stringUtils;
-    }
-
-    public LogicalArithmeticEvaluator(boolean evaluateAllTerms) {
-        super();
-        setEvaluateAllTerms(evaluateAllTerms);
+        this.logicalEvaluator = logicalEvaluator;
+        this.evaluateAllTerms = false;
     }
 
     public void addParameterObjectToContext(String key, Object value) {
@@ -266,10 +263,8 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         if (operation.trim().equals(GET.toString())) {
             return new GreatherOrEqualThanExpressionLogicalArithmetic(l, r);
         }
-
-        NonTerminalExpression nte = new LogicalEvaluator(getEvaluateAllTerms()).getNonTerminalExpression(operation,
-                l,
-                r);
+        logicalEvaluator.setEvaluateAllTerms(getEvaluateAllTerms());
+        NonTerminalExpression nte = logicalEvaluator.getNonTerminalExpression(operation, l, r);
         if (nte != null) {
             return nte;
         } else {
