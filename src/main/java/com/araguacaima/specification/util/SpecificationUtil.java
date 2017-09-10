@@ -19,39 +19,46 @@
 
 package com.araguacaima.specification.util;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.araguacaima.commons.utils.ReflectionUtils;
 import com.araguacaima.specification.Specification;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-class SpecificationUtil {
+@Component
+public class SpecificationUtil {
 
-    public static Collection<Object>
+    private ReflectionUtils reflectionUtils;
 
-    <String> getClassNamesTerms(Specification specification) {
+    public SpecificationUtil(ReflectionUtils reflectionUtils) {
+        this.reflectionUtils = reflectionUtils;
+    }
+
+    public Collection<Object> getClassNamesTerms(Specification specification) {
 
         Collection<Object> result = new ArrayList<Object>(specification.getTerms());
         CollectionUtils.transform(result, o -> ((Class) o).getName());
         return result;
     }
 
-    public static Collection<String> getSpecificationClassesNamesForObject(Class clazz)
+    public Collection<String> getSpecificationClassesNamesForObject(Class clazz)
             throws IllegalAccessException, InstantiationException {
         return getSpecificationClassesNamesForObject(clazz.newInstance());
     }
 
-    private static Collection<String> getSpecificationClassesNamesForObject(Object object) {
+    private Collection<String> getSpecificationClassesNamesForObject(Object object) {
         Collection<String> result = new ArrayList<String>();
-        Collection<String> specificationFields = ReflectionUtil.getAllFieldsNamesOfType(object.getClass(),
+        Collection<String> specificationFields = reflectionUtils.getAllFieldsNamesOfType(object.getClass(),
                 Specification.class);
         for (Object specificationField : specificationFields) {
             String field = (String) specificationField;
-            Specification specification = (Specification) ReflectionUtil.invokeGetter(object, field);
+            Specification specification = (Specification) reflectionUtils.invokeGetter(object, field);
             if (specification != null) {
                 Collection terms = specification.getTerms();
                 for (Object term1 : terms) {
-                    String term = ReflectionUtil.getSimpleClassName((Class) term1);
+                    String term = ((Class) term1).getSimpleName();
                     result.add(term);
                 }
             }
@@ -60,7 +67,7 @@ class SpecificationUtil {
         return result;
     }
 
-    public static Collection<String> getSpecificationClassesNamesForObject(String clazzName)
+    public Collection<String> getSpecificationClassesNamesForObject(String clazzName)
             throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         return getSpecificationClassesNamesForObject(Class.forName(clazzName).newInstance());
     }

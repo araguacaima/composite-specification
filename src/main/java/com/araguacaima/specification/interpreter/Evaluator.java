@@ -20,28 +20,27 @@
 package com.araguacaima.specification.interpreter;
 
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
 
 public interface Evaluator {
 
-    Logger log = Logger.getLogger(Evaluator.class);
+    Logger log = LoggerFactory.getLogger(Evaluator.class);
 
-    boolean isOperator(String str);
+    void addToContext(String key, String value);
 
-    /**
-     * Indicates if its required to evaluate individually all terms before determine the final logical result of
-     * the expression
-     *
-     * @param evaluateAllTerms A value of true indicates that its pretended to evaluate all terms indenpendently of is
-     *                         logical result before determine the final logical result of the entire expression. A
-     *                         value of false indicates that the evaluation breaks in any condition (term) return a
-     *                         value that satisfy the entire expression without the need of evaluate the remaining terms.
-     *                         The default value is false.
-     */
-    void setEvaluateAllTerms(boolean evaluateAllTerms);
+    Expression buildExpressionTree()
+            throws ExpressionException;
+
+    Expression buildTree(String expr)
+            throws ExpressionException;
+
+    Context getContext();
+
+    void setContext(Context c);
 
     /**
      * Obtains the value of the evaluateAllTerms field
@@ -50,25 +49,31 @@ public interface Evaluator {
      */
     boolean getEvaluateAllTerms();
 
-    Expression buildTree(String expr) throws ExpressionException;
-
-    NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r);
-
-    void setContext(Context c);
-
-    void setContext(Map<String, String> contextMap);
-
-    void addToContext(String key, String value);
-
-    void setExpression(String expr);
+    /**
+     * Indicates if its required to evaluate individually all terms before determine the final logical result of
+     * the expression
+     *
+     * @param evaluateAllTerms A value of true indicates that its pretended to evaluate all terms indenpendently of is
+     *                         logical result before determine the final logical result of the entire expression. A
+     *                         value of false indicates that the evaluation breaks in any condition (term) return a
+     *                         value that satisfy the entire expression without the need of evaluate the remaining
+     *                         terms.
+     *                         The default value is false.
+     */
+    void setEvaluateAllTerms(boolean evaluateAllTerms);
 
     String getExpression();
 
-    Context getContext();
+    void setExpression(String expr);
+
+    NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r);
+
+    Collection getTokens()
+            throws ExpressionException;
 
     String infixToPostFix(String str);
 
-    Collection getTokens() throws ExpressionException;
+    boolean isOperator(String str);
 
-    Expression buildExpressionTree() throws ExpressionException;
+    void setContext(Map<String, Object> contextMap);
 }

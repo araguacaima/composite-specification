@@ -19,16 +19,22 @@
 
 package com.araguacaima.specification.interpreter.logical;
 
+import com.araguacaima.specification.Specification;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.exception.ContextException;
-import com.araguacaima.specification.Specification;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class LogicalContext implements Context {
-    private final HashMap<String, Boolean> varList = new HashMap<String, Boolean>();
+    private final HashMap<String, Object> varList = new HashMap<>();
     private Specification specification;
+
+    public LogicalContext() {
+
+    }
 
     public void assign(String var, boolean value) {
         varList.put(var, value);
@@ -43,30 +49,25 @@ public class LogicalContext implements Context {
         varList.put(var, parameter);
     }
 
+    public Map getContextElements() {
+        return varList;
+    }
+
     public Object getContextObject(String var) {
         return varList.get(var);
     }
 
-    public boolean getValue(String var) throws ContextException {
+    public boolean getValue(String var)
+            throws ContextException {
         try {
             Boolean objBoolean = (Boolean) varList.get(var);
             return objBoolean;
         } catch (NullPointerException npe) {
-            throw new ContextException("There is no context setted for term '"
-                    + var
-                    + "'. Please initialize a valid value for it");
+            throw new ContextException("There is no context setted for term '" + var + "'. Please initialize a valid " +
+                    "" + "value for it");
         } catch (ClassCastException cce) {
-            throw new ContextException("There is no a valid value for term '"
-                    + var
-                    + "'. Please ensure that initialized value corresponds to a boolean one");
+            throw new ContextException("There is no a valid value for term '" + var + "'. Please ensure that " +
+                    "initialized value corresponds to a boolean one");
         }
-    }
-
-    public LogicalContext() {
-
-    }
-
-    public Map getContextElements() {
-        return varList;
     }
 }

@@ -31,16 +31,9 @@ public class LogicalExpressionImpl extends LogicalExpression {
         super(value);
     }
 
-    public Expression evaluate(Context c) throws ExpressionException {
+    public Expression evaluate(Context c)
+            throws ExpressionException {
         return null;
-    }
-
-    public Collection getTerms() {
-        return null;
-    }
-
-    public Object getValue() {
-        return this.value;
     }
 
     public Object getCondition() {
@@ -53,5 +46,13 @@ public class LogicalExpressionImpl extends LogicalExpression {
 
     public Expression getRightNode() {
         return null;
+    }
+
+    public Collection getTerms() {
+        return null;
+    }
+
+    public Object getValue() {
+        return this.value;
     }
 }

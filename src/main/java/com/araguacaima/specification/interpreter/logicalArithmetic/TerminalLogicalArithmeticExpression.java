@@ -19,13 +19,13 @@
 
 package com.araguacaima.specification.interpreter.logicalArithmetic;
 
+import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Expression;
 import com.araguacaima.specification.interpreter.TerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ContextSpecificationException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
-import com.araguacaima.commons.utils.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,27 +38,8 @@ public class TerminalLogicalArithmeticExpression extends LogicalArithmeticExpres
         var = v;
     }
 
-    public Collection getTerms() {
-        return Arrays.asList(getValue());
-    }
-
-    public Object getValue() {
-        return var;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public Expression getLeftNode() {
-        return null;
-    }
-
-    public Expression getRightNode() {
-        return null;
-    }
-
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         try {
             return new LogicalArithmeticExpressionImpl(((LogicalArithmeticContext) c).getValue(var));
         } catch (ContextException cse) {
@@ -76,5 +57,25 @@ public class TerminalLogicalArithmeticExpression extends LogicalArithmeticExpres
             return new LogicalArithmeticExpressionImpl(((LogicalArithmeticContext) c).evaluateSpecification(var,
                     specificationParameter));
         }
+    }
+
+    public Object getCondition() {
+        return null;
+    }
+
+    public Expression getLeftNode() {
+        return null;
+    }
+
+    public Expression getRightNode() {
+        return null;
+    }
+
+    public Collection getTerms() {
+        return Arrays.asList(getValue());
+    }
+
+    public Object getValue() {
+        return var;
     }
 }

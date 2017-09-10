@@ -33,7 +33,16 @@ import java.util.HashSet;
 
 public class EqualExpression extends NonTerminalLogicalExpression {
 
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public EqualExpression(Expression l, Expression r) {
+        this(false, l, r);
+    }
+
+    public EqualExpression(boolean evaluateAllTerms, Expression l, Expression r) {
+        super(evaluateAllTerms, l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         if (c instanceof ArithmeticContext || c instanceof LogicalContext || c instanceof LogicalArithmeticContext) {
             Object objectLeft = getLeftNode().evaluate(c).getValue();
             Object objectRight = getRightNode().evaluate(c).getValue();
@@ -41,6 +50,10 @@ public class EqualExpression extends NonTerminalLogicalExpression {
         } else {
             throw new InvalidExpressionException();
         }
+    }
+
+    public Object getCondition() {
+        return null;
     }
 
     public Collection getTerms() {
@@ -52,17 +65,5 @@ public class EqualExpression extends NonTerminalLogicalExpression {
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public EqualExpression(Expression l, Expression r) {
-        this(false, l, r);
-    }
-
-    public EqualExpression(boolean evaluateAllTerms, Expression l, Expression r) {
-        super(evaluateAllTerms, l, r);
     }
 }// EqualExpression

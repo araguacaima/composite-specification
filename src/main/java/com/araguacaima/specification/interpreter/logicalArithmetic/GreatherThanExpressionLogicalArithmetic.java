@@ -29,7 +29,12 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class GreatherThanExpressionLogicalArithmetic extends NonTerminalLogicalArithmeticExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public GreatherThanExpressionLogicalArithmetic(Expression l, Expression r) {
+        super(l, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         try {
             double result1 = (Double) getLeftNode().evaluate(c).getValue();
             double result2 = (Double) getRightNode().evaluate(c).getValue();
@@ -37,6 +42,10 @@ public class GreatherThanExpressionLogicalArithmetic extends NonTerminalLogicalA
         } catch (ArithmeticException ae) {
             throw new ExpressionException(ae.getMessage());
         }
+    }
+
+    public Object getCondition() {
+        return null;
     }
 
     public Collection getTerms() {
@@ -48,13 +57,5 @@ public class GreatherThanExpressionLogicalArithmetic extends NonTerminalLogicalA
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public GreatherThanExpressionLogicalArithmetic(Expression l, Expression r) {
-        super(l, r);
     }
 }// GreatherThanExpressionLogicalArithmetic

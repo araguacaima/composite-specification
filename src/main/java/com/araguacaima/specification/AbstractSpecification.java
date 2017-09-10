@@ -19,8 +19,8 @@
 
 package com.araguacaima.specification;
 
-import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 import com.araguacaima.commons.utils.StringUtils;
+import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,11 +44,9 @@ public abstract class AbstractSpecification implements Specification {
 
     /**
      * {@inheritDoc}
-     *
-     * @param evaluateAllTerms
      */
-    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
-        this.evaluateAllTerms = evaluateAllTerms;
+    public Specification and(final Specification specification) {
+        return new AndSpecification(getEvaluateAllTerms(), this, specification);
     }
 
     /**
@@ -64,80 +62,38 @@ public abstract class AbstractSpecification implements Specification {
     /**
      * {@inheritDoc}
      *
-     * @param object
-     * @param map
+     * @param evaluateAllTerms
      */
-    public abstract boolean isSatisfiedBy(Object object, Map map) throws Exception;
-
-    /**
-     * {@inheritDoc}
-     */
-    public Specification and(final Specification specification) {
-        return new AndSpecification(getEvaluateAllTerms(), this, specification);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Specification or(final Specification specification) {
-        return new OrSpecification(getEvaluateAllTerms(), this, specification);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Specification logicalEq(final Specification specification) {
-        return new LogicalEqSpecification(getEvaluateAllTerms(), this, specification);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Specification not(final Specification specification) {
-        return new NotSpecification(getEvaluateAllTerms(), specification);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String toString() {
-        return getExpressionStringFromSpecification(this, StringUtils.EMPTY);
+    public void setEvaluateAllTerms(boolean evaluateAllTerms) {
+        this.evaluateAllTerms = evaluateAllTerms;
     }
 
     private String getExpressionStringFromSpecification(Specification node, String result) {
         if (node != null) {
 
             if (node instanceof AndSpecification) {
-                result = LogicalEvaluator.STARTING_PARENTHESIS
-                        + (getExpressionStringFromSpecification(node.getLeftNode(), result)
-                        + " "
-                        + LogicalEvaluator.AND
-                        + " "
-                        + getExpressionStringFromSpecification(node.getRightNode(), result))
-                        + LogicalEvaluator.CLOSING_PARENTHESIS;
+                result = LogicalEvaluator.STARTING_PARENTHESIS + (getExpressionStringFromSpecification(node
+                                .getLeftNode(),
+                        result) + " " + LogicalEvaluator.AND + " " + getExpressionStringFromSpecification(node
+                                .getRightNode(),
+                        result)) + LogicalEvaluator.CLOSING_PARENTHESIS;
             } else if (node instanceof NotSpecification) {
-                result = " "
-                        + LogicalEvaluator.NOT
-                        + " "
-                        + LogicalEvaluator.STARTING_PARENTHESIS
-                        + getExpressionStringFromSpecification(node.getLeftNode(), result)
-                        + LogicalEvaluator.CLOSING_PARENTHESIS;
+                result = " " + LogicalEvaluator.NOT + " " + LogicalEvaluator.STARTING_PARENTHESIS +
+                        getExpressionStringFromSpecification(
+                        node.getLeftNode(),
+                        result) + LogicalEvaluator.CLOSING_PARENTHESIS;
             } else if (node instanceof OrSpecification) {
-                result = LogicalEvaluator.STARTING_PARENTHESIS
-                        + (getExpressionStringFromSpecification(node.getLeftNode(), result)
-                        + " "
-                        + LogicalEvaluator.OR
-                        + " "
-                        + getExpressionStringFromSpecification(node.getRightNode(), result))
-                        + LogicalEvaluator.CLOSING_PARENTHESIS;
+                result = LogicalEvaluator.STARTING_PARENTHESIS + (getExpressionStringFromSpecification(node
+                                .getLeftNode(),
+                        result) + " " + LogicalEvaluator.OR + " " + getExpressionStringFromSpecification(node
+                                .getRightNode(),
+                        result)) + LogicalEvaluator.CLOSING_PARENTHESIS;
             } else if (node instanceof LogicalEqSpecification) {
-                result = LogicalEvaluator.STARTING_PARENTHESIS
-                        + (getExpressionStringFromSpecification(node.getLeftNode(), result)
-                        + " "
-                        + LogicalEvaluator.LE
-                        + " "
-                        + getExpressionStringFromSpecification(node.getRightNode(), result))
-                        + LogicalEvaluator.CLOSING_PARENTHESIS;
+                result = LogicalEvaluator.STARTING_PARENTHESIS + (getExpressionStringFromSpecification(node
+                                .getLeftNode(),
+                        result) + " " + LogicalEvaluator.LE + " " + getExpressionStringFromSpecification(node
+                                .getRightNode(),
+                        result)) + LogicalEvaluator.CLOSING_PARENTHESIS;
             } else {
                 result = node.getClass().getName();
             }
@@ -157,6 +113,43 @@ public abstract class AbstractSpecification implements Specification {
         Collection<Object> result = new ArrayList<>();
         result.add(this.getClass());
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param object
+     * @param map
+     */
+    public abstract boolean isSatisfiedBy(Object object, Map map)
+            throws Exception;
+
+    /**
+     * {@inheritDoc}
+     */
+    public Specification logicalEq(final Specification specification) {
+        return new LogicalEqSpecification(getEvaluateAllTerms(), this, specification);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Specification not(final Specification specification) {
+        return new NotSpecification(getEvaluateAllTerms(), specification);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Specification or(final Specification specification) {
+        return new OrSpecification(getEvaluateAllTerms(), this, specification);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() {
+        return getExpressionStringFromSpecification(this, StringUtils.EMPTY);
     }
 
 }

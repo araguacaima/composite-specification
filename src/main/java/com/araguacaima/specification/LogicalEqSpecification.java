@@ -24,7 +24,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Logical Equality specification, used to create a new specifcation that is the biconditional of two other specifications.
+ * Logical Equality specification, used to create a new specifcation that is the biconditional of two other
+ * specifications.
  */
 public class LogicalEqSpecification extends AbstractSpecification {
 
@@ -55,17 +56,11 @@ public class LogicalEqSpecification extends AbstractSpecification {
         this.spec2 = spec2;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param object
-     * @param map
-     */
-    public boolean isSatisfiedBy(Object object, final Map map) throws Exception {
-
-        boolean result1 = spec1.isSatisfiedBy(object, map);
-        boolean result2 = spec2.isSatisfiedBy(object, map);
-        return ((result1 && result2) || (!result1 && !result2));
+    public Collection<Object> getTerms() {
+        Collection<Object> terms = new ArrayList();
+        terms.addAll(getLeftNode().getTerms());
+        terms.addAll(getRightNode().getTerms());
+        return terms;
     }
 
     public Specification getLeftNode() {
@@ -76,10 +71,17 @@ public class LogicalEqSpecification extends AbstractSpecification {
         return spec2;
     }
 
-    public Collection<Object> getTerms() {
-        Collection<Object> terms = new ArrayList();
-        terms.addAll(getLeftNode().getTerms());
-        terms.addAll(getRightNode().getTerms());
-        return terms;
+    /**
+     * {@inheritDoc}
+     *
+     * @param object
+     * @param map
+     */
+    public boolean isSatisfiedBy(Object object, final Map map)
+            throws Exception {
+
+        boolean result1 = spec1.isSatisfiedBy(object, map);
+        boolean result2 = spec2.isSatisfiedBy(object, map);
+        return ((result1 && result2) || (!result1 && !result2));
     }
 }

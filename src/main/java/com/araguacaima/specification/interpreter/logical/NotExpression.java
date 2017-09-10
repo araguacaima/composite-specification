@@ -30,7 +30,16 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class NotExpression extends NonTerminalLogicalExpression {
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
+    public NotExpression(Expression r) {
+        this(false, r);
+    }
+
+    public NotExpression(boolean evaluateAllTems, Expression r) {
+        super(evaluateAllTems, null, r);
+    }
+
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
         Expression expressionRightEvaluated = getRightNode();
         if (expressionRightEvaluated != null) {
             expressionRightEvaluated = expressionRightEvaluated.evaluate(c);
@@ -63,6 +72,10 @@ public class NotExpression extends NonTerminalLogicalExpression {
         throw new ExpressionException("The expression is not a valid NotExpression");
     }
 
+    public Object getCondition() {
+        return null;
+    }
+
     public Collection getTerms() {
         Collection terms = new ArrayList();
         Expression left = getLeftNode();
@@ -78,17 +91,5 @@ public class NotExpression extends NonTerminalLogicalExpression {
 
     public Object getValue() {
         return null;
-    }
-
-    public Object getCondition() {
-        return null;
-    }
-
-    public NotExpression(Expression r) {
-        this(false, r);
-    }
-
-    public NotExpression(boolean evaluateAllTems, Expression r) {
-        super(evaluateAllTems, null, r);
     }
 }// NotExpression

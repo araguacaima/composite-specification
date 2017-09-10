@@ -41,12 +41,9 @@ public class TerminalLogicalExpression extends LogicalExpression implements Expr
         var = v;
     }
 
-    public Collection getTerms() {
-        return Arrays.asList(getValue());
-    }
-
-    public Object getValue() {
-        return var;
+    public Expression evaluate(Context c)
+            throws ExpressionException, ContextException {
+        return new LogicalExpressionImpl(((LogicalContext) c).getValue(var));
     }
 
     public Object getCondition() {
@@ -61,7 +58,11 @@ public class TerminalLogicalExpression extends LogicalExpression implements Expr
         return null;
     }
 
-    public Expression evaluate(Context c) throws ExpressionException, ContextException {
-        return new LogicalExpressionImpl(((LogicalContext) c).getValue(var));
+    public Collection getTerms() {
+        return Arrays.asList(getValue());
+    }
+
+    public Object getValue() {
+        return var;
     }
 }

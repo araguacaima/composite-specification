@@ -19,17 +19,21 @@
 
 package com.araguacaima.specification.interpreter.logicalArithmetic;
 
+import com.araguacaima.specification.Specification;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ContextSpecificationException;
-import com.araguacaima.specification.Specification;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class LogicalArithmeticContext implements Context {
-    private final HashMap<String, Double> varList = new HashMap<String, Double>();
+    private final HashMap<String, Object> varList = new HashMap<>();
     private Specification specification;
+
+    public LogicalArithmeticContext() {
+
+    }
 
     public void assign(String var, double value) {
         varList.put(var, value);
@@ -44,58 +48,49 @@ public class LogicalArithmeticContext implements Context {
         varList.put(var, parameter);
     }
 
+    public boolean evaluateSpecification(String var, Object object)
+            throws ContextSpecificationException {
+        try {
+            if (specification.getClass().getName().equals(getContextObject(var).toString())) {
+                return specification.isSatisfiedBy(object, new HashMap());
+            } else {
+                throw new ContextSpecificationException("There is no a specification class configured for name '" +
+                        var + "'");
+            }
+        } catch (Throwable ignored) {
+            throw new ContextSpecificationException("There is no a valid value for term '" + var + "'. Please ensure " +
+                    "" + "" + "that initialized value corresponds to a double one or " + "to a valid Specification");
+        }
+    }
+
     public Object getContextObject(String var) {
         return varList.get(var);
-    }
-
-    public double getValue(String var) throws ContextException {
-        try {
-            Double objDouble = (Double) varList.get(var);
-            return objDouble;
-        } catch (NullPointerException npe) {
-            throw new ContextException("There is no context setted for term '"
-                    + var
-                    + "'. Please initialize a valid value for it");
-        } catch (ClassCastException cce) {
-
-            throw new ContextException("There is no a valid value for term '"
-                    + var
-                    + "'. Please ensure that initialized value corresponds to a double one");
-
-        } catch (NumberFormatException ignored) {
-
-            throw new ContextSpecificationException("There is no a valid value for term '"
-                    + var
-                    + "'. Please ensure that initialized value corresponds to a double one or "
-                    + "to a valid Specification");
-
-        }
-
-    }
-
-    public LogicalArithmeticContext() {
-
     }
 
     public Map getContextElements() {
         return varList;
     }
 
-    public boolean evaluateSpecification(String var, Object object) throws ContextSpecificationException {
+    public double getValue(String var)
+            throws ContextException {
         try {
-            if (specification.getClass().getName().equals(getContextObject(var).toString())) {
-                return specification.isSatisfiedBy(object, new HashMap());
-            } else {
-                throw new ContextSpecificationException("There is no a specification class configured for name '"
-                        + var
-                        + "'");
-            }
-        } catch (Throwable ignored) {
-            throw new ContextSpecificationException("There is no a valid value for term '"
-                    + var
-                    + "'. Please ensure that initialized value corresponds to a double one or "
-                    + "to a valid Specification");
+            Double objDouble = (Double) varList.get(var);
+            return objDouble;
+        } catch (NullPointerException npe) {
+            throw new ContextException("There is no context setted for term '" + var + "'. Please initialize a valid " +
+                    "" + "" + "value for it");
+        } catch (ClassCastException cce) {
+
+            throw new ContextException("There is no a valid value for term '" + var + "'. Please ensure that " +
+                    "initialized value corresponds to a double one");
+
+        } catch (NumberFormatException ignored) {
+
+            throw new ContextSpecificationException("There is no a valid value for term '" + var + "'. Please ensure " +
+                    "" + "" + "that initialized value corresponds to a double one or " + "to a valid Specification");
+
         }
+
     }
 }
 

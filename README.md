@@ -1,4 +1,4 @@
-![amma logo](/docs/resources/amma-logo-full-2.png "AmMa Logo")
+![amma logo](./docs/resources/amma-logo-full-2.png "AmMa Logo")
 
 ToC
 ===

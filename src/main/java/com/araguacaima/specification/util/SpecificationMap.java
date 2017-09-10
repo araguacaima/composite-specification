@@ -19,197 +19,61 @@
 
 package com.araguacaima.specification.util;
 
+import com.araguacaima.commons.utils.MapUtils;
+import com.araguacaima.commons.utils.NotNullOrEmptyStringObjectPredicate;
+import com.araguacaima.commons.utils.StringUtils;
+import com.araguacaima.specification.AbstractSpecificationImpl;
+import com.araguacaima.specification.Specification;
 import com.araguacaima.specification.interpreter.Expression;
 import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.TerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.logical.*;
-import com.araguacaima.specification.AbstractSpecificationImpl;
-import com.araguacaima.specification.Specification;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,
+       proxyMode = ScopedProxyMode.DEFAULT)
 public class SpecificationMap {
 
-    private final Map<String, Specification>
-            <String, <Map <String, Specification>>
-            specificationMap = new HashMap<String, Specification><String, <Map <String, Specification>>();
-    private Properties properties = new Properties();
+    private static final Logger log = LoggerFactory.getLogger(SpecificationMap.class);
+    private final Map<String, Specification> specificationMap = new HashMap<>();
     private String className;
-    private static final Logger log = Logger.getLogger(SpecificationMap.class);
+    private LogicalEvaluator logicalEvaluator;
+    private MapUtils mapUtils;
+    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
+    private Properties properties = new Properties();
 
     private SpecificationMap() {
-    }
-
-    public SpecificationMap(Class clazz, Properties properties, ClassLoader classLoader) {
-        this(clazz.getName(), properties, classLoader);
-    }
-
-    private SpecificationMap(String className, Properties properties, ClassLoader classLoader) {
-        this.properties = properties;
-        this.className = className;
-        buildsSpecificationMap(classLoader);
-    }
-
-    private Map<String, Specification> <String, Specification> getSpecificationsMap() {
-        return getSpecificationMap();
-    }
-
-    public Specification getSpecificationFromMethod(String method) {
-        return getSpecificationsMap().get(method);
-    }
-
-    private Map<String, Specification> getSpecificationMap() {
-        return specificationMap;
-    }
-
-    private void buildsSpecificationMap(final ClassLoader classLoader) {
-        Collection<Object> classes = new ArrayList<>(properties.keySet());
-
-        CollectionUtils.transform(classes, o -> {
-            String key = ((String) o);
-            return key.substring(0, key.lastIndexOf("."));
-        });
-        Set<Object> classesSet = new HashSet<Object>(classes);
-        final Map propertiesByClass = new HashMap();
-        CollectionUtils.forAllDo(classesSet, o -> {
-            final String className = (String) o;
-            propertiesByClass.putAll(MapUtil.select(properties,
-                    o1 -> ((String) o1).startsWith(className), NotNullOrEmptyStringPredicate.getInstance()));
-        });
-        Collection methods = new ArrayList(propertiesByClass.keySet());
-        CollectionUtils.transform(methods, o -> {
-            String key = ((String) o);
-            return key.substring(key.lastIndexOf(".") + 1);
-        });
-        Set methodsFiltered = new HashSet(methods);
-        CollectionUtils.forAllDo(methodsFiltered, o -> {
-            String methodName = (String) o;
-            boolean evaluateAllTerms;
-            String[] tokens = methodName.split("_");
-            if (tokens.length == 2) {
-                methodName = tokens[0];
-                evaluateAllTerms = tokens[1].equals("1");
-            } else {
-                evaluateAllTerms = false;
-            }
-            try {
-                String property = (String) properties.get(className + "." + o);
-                if (!StringUtils.isNullOrEmpty(property)) {
-                    specificationMap.put(methodName, buildSpecification(evaluateAllTerms,
-                            property,
-                            classLoader));
-
-                }
-            } catch (Exception ignored) {
-            }
-        });
 
     }
 
-    public Collection getTermsByMethod(String methodName) {
-        return getTermsByMethod(methodName, false);
+    @Autowired
+    public SpecificationMap(NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate,
+                            MapUtils mapUtils, LogicalEvaluator logicalEvaluator) {
+        this.notNullOrEmptyStringObjectPredicate = notNullOrEmptyStringObjectPredicate;
+        this.mapUtils = mapUtils;
+        this.logicalEvaluator = logicalEvaluator;
     }
 
-    private Collection getTermsByMethod(String methodName, boolean evaluateAllTerms) {
-        String expression = (String) properties.get(className + "." + methodName);
-        LogicalEvaluator logicalEvaluator = new LogicalEvaluator(evaluateAllTerms);
-        logicalEvaluator.setExpression(expression);
-        Collection tokens = new ArrayList();
-
-        try {
-            tokens = logicalEvaluator.getTokens();
-        } catch (ExpressionException e) {
-            e.printStackTrace();
-            return tokens;
-        }
-
-        CollectionUtils.transform(tokens, o -> {
-            String tokenClassName = (String) o;
-            try {
-                Class clazz = Class.forName(tokenClassName);
-                return clazz.newInstance();
-            } catch (ClassNotFoundException e) {
-                String message = "It was not possible to find class '"
-                        + className
-                        + "' because of an Exception of type '"
-                        + e.getClass().getName()
-                        + "'. Does that class really exists and its reacheable by the current classloader?."
-                        + " The associated message for this Exception is: "
-                        + e.getMessage();
-                log.error(message);
-            } catch (InstantiationException e) {
-                String message = "It was not possible to instantiate a concrete object for class "
-                        + className
-                        + "' because of an Exception of type '"
-                        + e.getClass().getName()
-                        + "'. Probably this class represents an abstract class, an interface, an array "
-                        + "class, a primitive type, or void or has no nullary constructor."
-                        + " The associated message for this Exception is: "
-                        + e.getMessage();
-                log.error(message);
-            } catch (IllegalAccessException e) {
-                String message = "It was not possible to instantiate a concrete object for class "
-                        + className
-                        + "' because of an Exception of type '"
-                        + e.getClass().getName()
-                        + "'. Probably the class or its nullary constructor is not accessible."
-                        + " The associated message for this Exception is: "
-                        + e.getMessage();
-                log.error(message);
-            }
-            try {
-                ClassLoader classLoader = Class.forName(className).getClassLoader();
-                Class clazz = classLoader.loadClass(tokenClassName);
-                return clazz.newInstance();
-            } catch (ClassNotFoundException e) {
-                String message = "It was not possible to find class "
-                        + className
-                        + "' because of an Exception of type '"
-                        + e.getClass().getName()
-                        + "'. Does that class really exists and its reacheable by the current classloader?."
-                        + " The associated message for this Exception is: "
-                        + e.getMessage();
-                log.error(message);
-            } catch (InstantiationException e) {
-                String message = "It was not possible to instantiate a concrete object for class "
-                        + className
-                        + "' because of an Exception of type '"
-                        + e.getClass().getName()
-                        + "'. Probably this Class represents an abstract class, an interface, an array "
-                        + "class, a primitive type, or void or has no nullary constructor."
-                        + " The associated message for this Exception is: "
-                        + e.getMessage();
-                log.error(message);
-            } catch (IllegalAccessException e) {
-                String message = "It was not possible to instantiate a concrete object for class "
-                        + className
-                        + "' because of an Exception of type '"
-                        + e.getClass().getName()
-                        + "'. Probably the class or its nullary constructor is not accessible."
-                        + "The associated message for this Exception is: "
-                        + e.getMessage();
-                log.error(message);
-            }
-            return o;
-        });
-        CollectionUtils.predicatedCollection(tokens, o -> o instanceof Specification);
-        return tokens;
+    public void addProperties(Properties properties) {
+        this.properties.putAll(properties);
     }
 
     private Specification buildSpecification(boolean evaluateAllTerms, String expression, ClassLoader classLoader)
             throws ExpressionException {
         Specification result = new AbstractSpecificationImpl(evaluateAllTerms);
-        LogicalEvaluator logicalEvaluator = new LogicalEvaluator(evaluateAllTerms);
+        logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
         logicalEvaluator.setExpression(expression);
         return buildSpecificationFromExpression(logicalEvaluator.buildExpressionTree(), result, classLoader);
     }
@@ -222,32 +86,25 @@ public class SpecificationMap {
                 try {
                     Class<Specification> clazz = (Class<Specification>) classLoader.loadClass(nodeclassName);
                     try {
-                        spec = clazz.getConstructor(new Class[]{Boolean.TYPE})
-                                .newInstance(new Object[]{spec.getEvaluateAllTerms()});
+                        spec = clazz.getConstructor(new Class[]{Boolean.TYPE}).newInstance(new Object[]{spec
+                                .getEvaluateAllTerms()});
                     } catch (InvocationTargetException e) {
-                        String message = "The class '"
-                                + className
-                                + "' exists but, it was not possible to instantiate a concrete object "
-                                + "for it because of an Exception of type '"
-                                + e.getClass().getName()
-                                + "'. The Constructor of boolean parameter threw an uncaught Exception "
-                                + " The associated message for this Exception is: "
-                                + e.getMessage();
+                        String message = "The class '" + className + "' exists but, it was not possible to " +
+                                "instantiate a concrete object " + "for it because of an Exception of type '" + e
+                                .getClass().getName() + "'. The Constructor of boolean parameter threw an uncaught "
+                                + "Exception " + " The associated message for this Exception is: " + e.getMessage();
                         log.error(message);
                     } catch (NoSuchMethodException e) {
                         try {
-                            spec = (Specification) clazz.getSuperclass()
-                                    .getConstructor(new Class[]{Boolean.TYPE})
-                                    .newInstance(new Object[]{spec.getEvaluateAllTerms()});
+                            spec = (Specification) clazz.getSuperclass().getConstructor(new Class[]{Boolean.TYPE})
+                                    .newInstance(
+                                    new Object[]{spec.getEvaluateAllTerms()});
                         } catch (InvocationTargetException e1) {
-                            String message = "The class '"
-                                    + className
-                                    + "' exists but, it was not possible to instantiate a concrete object "
-                                    + "for it because of an Exception of type '"
-                                    + e.getClass().getName()
-                                    + "'. The class that declares the underlying constructor represents an abstract class. "
-                                    + " The associated message for this Exception is: "
-                                    + e.getMessage();
+                            String message = "The class '" + className + "' exists but, it was not possible to " +
+                                    "instantiate a concrete object " + "for it because of an Exception of type '" + e
+                                    .getClass().getName() + "'. The class that declares the underlying constructor "
+                                    + "represents an abstract class. " + " The associated message for this Exception " +
+                                    "" + "" + "" + "" + "" + "is: " + e.getMessage();
                             log.error(message);
                         } catch (NoSuchMethodException e2) {
                             spec = clazz.newInstance();
@@ -257,18 +114,14 @@ public class SpecificationMap {
                     try {
                         return buildSpecificationFromExpression(node,
                                 spec,
-                                Class.forName(nodeclassName)
-                                        .getClassLoader()
-                                        .getParent());
+                                Class.forName(nodeclassName).getClassLoader().getParent());
                     } catch (ClassNotFoundException e1) {
                         try {
                             ClassLoader classLoader1 = Class.forName(className).getClassLoader();
                             if (classLoader1.equals(classLoader)) {
                                 return null;
                             } else {
-                                return buildSpecificationFromExpression(node,
-                                        spec,
-                                        classLoader1);
+                                return buildSpecificationFromExpression(node, spec, classLoader1);
                             }
                         } catch (ClassNotFoundException e2) {
                             return null;
@@ -276,23 +129,17 @@ public class SpecificationMap {
                     }
 
                 } catch (InstantiationException e) {
-                    String message = "The class '"
-                            + className
-                            + "' exists but, it was not possible to instantiate a concrete object "
-                            + "for it because of an Exception of type '"
-                            + e.getClass().getName()
-                            + "'. The class that declares the underlying constructor represents an abstract class. "
-                            + " The associated message for this Exception is: "
-                            + e.getMessage();
+                    String message = "The class '" + className + "' exists but, it was not possible to instantiate a " +
+                            "" + "" + "" + "" + "" + "concrete object " + "for it because of an Exception of type '"
+                            + e.getClass().getName() + "'. The class that declares the underlying constructor " +
+                            "represents" + " an " + "abstract class. " + " The associated message for this Exception " +
+                            "" + "is: " + e.getMessage();
                     log.error(message);
                     throw new ExpressionException(message);
                 } catch (IllegalAccessException e) {
-                    String message = "It was not possible to instantiate a concrete object for class "
-                            + className
-                            + "' because of an Exception of type '"
-                            + e.getClass().getName()
-                            + "'. This class is not accesible by Java. The associated message for this Exception is: "
-                            + e.getMessage();
+                    String message = "It was not possible to instantiate a concrete object for class " + className +
+                            "' because of an Exception of type '" + e.getClass().getName() + "'. This class is not "
+                            + "accesible by Java. The associated message for this Exception is: " + e.getMessage();
                     log.error(message);
                     throw new ExpressionException(message);
                 }
@@ -316,15 +163,140 @@ public class SpecificationMap {
         return spec;
     }
 
-    public void setProperties(Properties properties) {
-        this.properties = properties;
+    void buildSpecificationMap(final ClassLoader classLoader) {
+        Collection<Object> classes = new ArrayList<>(properties.keySet());
+
+        CollectionUtils.transform(classes, o -> {
+            String key = ((String) o);
+            return key.substring(0, key.lastIndexOf("."));
+        });
+        Set<Object> classesSet = new HashSet<>(classes);
+        final Map<Object, Object> propertiesByClass = new HashMap<>();
+        CollectionUtils.forAllDo(classesSet, o -> {
+            final String className = (String) o;
+            propertiesByClass.putAll(mapUtils.select(properties,
+                    o1 -> ((String) o1).startsWith(className),
+                    notNullOrEmptyStringObjectPredicate));
+        });
+        Collection methods = new ArrayList(propertiesByClass.keySet());
+        CollectionUtils.transform(methods, o -> {
+            String key = ((String) o);
+            return key.substring(key.lastIndexOf(".") + 1);
+        });
+        Set methodsFiltered = new HashSet(methods);
+        CollectionUtils.forAllDo(methodsFiltered, o -> {
+            String methodName = (String) o;
+            boolean evaluateAllTerms;
+            String[] tokens = methodName.split("_");
+            if (tokens.length == 2) {
+                methodName = tokens[0];
+                evaluateAllTerms = tokens[1].equals("1");
+            } else {
+                evaluateAllTerms = false;
+            }
+            try {
+                String property = (String) properties.get(className + "." + o);
+                if (StringUtils.isNotBlank(property)) {
+                    final Specification value = buildSpecification(evaluateAllTerms, property, classLoader);
+                    specificationMap.put(methodName, value);
+
+                }
+            } catch (Exception ignored) {
+                ignored.printStackTrace();
+            }
+        });
+
     }
 
     public Properties getProperties() {
         return properties;
     }
 
-    public void addProperties(Properties properties) {
-        this.properties.putAll(properties);
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    public Specification getSpecificationFromMethod(String method) {
+        return getSpecificationMap().get(method);
+    }
+
+    public Map<String, Specification> getSpecificationMap() {
+        return specificationMap;
+    }
+
+    public Collection getTermsByMethod(String methodName) {
+        return getTermsByMethod(methodName, false);
+    }
+
+    private Collection getTermsByMethod(String methodName, boolean evaluateAllTerms) {
+        String expression = (String) properties.get(className + "." + methodName);
+        logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
+        logicalEvaluator.setExpression(expression);
+        Collection tokens = new ArrayList();
+
+        try {
+            tokens = logicalEvaluator.getTokens();
+        } catch (ExpressionException e) {
+            e.printStackTrace();
+            return tokens;
+        }
+
+        CollectionUtils.transform(tokens, o -> {
+            String tokenClassName = (String) o;
+            try {
+                Class clazz = Class.forName(tokenClassName);
+                return clazz.newInstance();
+            } catch (ClassNotFoundException e) {
+                String message = "It was not possible to find class '" + className + "' because of an Exception of "
+                        + "type '" + e.getClass().getName() + "'. Does that class really exists and its reacheable "
+                        + "by" + " " + "the current classloader?." + " The associated message for this Exception is: " +
+                        "" + "" + "" + e.getMessage();
+                log.error(message);
+            } catch (InstantiationException e) {
+                String message = "It was not possible to instantiate a concrete object for class " + className + "' "
+                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably this class " +
+                        "represents an abstract class, an interface, an array " + "class, a primitive type, or void "
+                        + "or has no nullary constructor." + " The associated message for this Exception is: " + e
+                        .getMessage();
+                log.error(message);
+            } catch (IllegalAccessException e) {
+                String message = "It was not possible to instantiate a concrete object for class " + className + "' "
+                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably the class or "
+                        + "its " + "nullary constructor is not accessible." + " The associated message for this " +
+                        "Exception is: " + e.getMessage();
+                log.error(message);
+            }
+            try {
+                ClassLoader classLoader = Class.forName(className).getClassLoader();
+                Class clazz = classLoader.loadClass(tokenClassName);
+                return clazz.newInstance();
+            } catch (ClassNotFoundException e) {
+                String message = "It was not possible to find class " + className + "' because of an Exception of " +
+                        "type '" + e.getClass().getName() + "'. Does that class really exists and its reacheable by "
+                        + "the current classloader?." + " The associated message for this Exception is: " + e
+                        .getMessage();
+                log.error(message);
+            } catch (InstantiationException e) {
+                String message = "It was not possible to instantiate a concrete object for class " + className + "' "
+                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably this Class " +
+                        "represents an abstract class, an interface, an array " + "class, a primitive type, or void "
+                        + "or has no nullary constructor." + " The associated message for this Exception is: " + e
+                        .getMessage();
+                log.error(message);
+            } catch (IllegalAccessException e) {
+                String message = "It was not possible to instantiate a concrete object for class " + className + "' "
+                        + "because of an Exception of type '" + e.getClass().getName() + "'. Probably the class or "
+                        + "its " + "nullary constructor is not accessible." + "The associated message for this " +
+                        "Exception is: " + e.getMessage();
+                log.error(message);
+            }
+            return o;
+        });
+        CollectionUtils.predicatedCollection(tokens, o -> o instanceof Specification);
+        return tokens;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 }
