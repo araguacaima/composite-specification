@@ -1,4 +1,4 @@
-package com.bbva.templates.validation.util;
+package com.araguacaima.specification.util;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;

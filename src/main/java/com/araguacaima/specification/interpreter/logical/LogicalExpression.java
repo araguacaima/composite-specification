@@ -48,8 +48,6 @@ public abstract class LogicalExpression implements Expression {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
 
     public boolean getEvaluateAllTerms() {
@@ -59,7 +57,6 @@ public abstract class LogicalExpression implements Expression {
     /**
      * {@inheritDoc}
      *
-     * @param evaluateAllTerms
      */
     public void setEvaluateAllTerms(boolean evaluateAllTerms) {
         this.evaluateAllTerms = evaluateAllTerms;

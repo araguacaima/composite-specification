@@ -24,17 +24,12 @@ import java.util.Map;
 
 /**
  * Specification interface.
- * <p/>
  * Use {@link AbstractSpecification} as base for creating specifications, and
  * only the method {@link #isSatisfiedBy(Object, java.util.Map)} must be implemented.
- * <p>
- *
- * @author [Creator] Alejandro Manuel Méndez Argauacaima <araguacaima@gmail.com> AMMA
- * <p>
+ * @author [Creator] Alejandro Manuel Méndez Argauacaima &lt;araguacaima@gmail.com&gt; AMMA
  * <ul>
  * <li>[2017/09/01] AMMA: Class creation
  * </ul>
- * <p>
  */
 public interface Specification {
 
@@ -93,7 +88,7 @@ public interface Specification {
      * @param object The value to be compared
      * @param map    A set of required values to perform the comparison
      * @return {@code true} if {@code t} satisfies the specification.
-     * @throws ClassCastException Thrown if o can not be cast to expected type.
+     * @throws Exception Thrown for any kind of exceptions.
      */
     boolean isSatisfiedBy(Object object, Map map)
             throws Exception;

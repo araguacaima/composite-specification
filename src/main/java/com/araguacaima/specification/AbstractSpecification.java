@@ -51,8 +51,6 @@ public abstract class AbstractSpecification implements Specification {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
 
     public boolean getEvaluateAllTerms() {
@@ -61,8 +59,6 @@ public abstract class AbstractSpecification implements Specification {
 
     /**
      * {@inheritDoc}
-     *
-     * @param evaluateAllTerms
      */
     public void setEvaluateAllTerms(boolean evaluateAllTerms) {
         this.evaluateAllTerms = evaluateAllTerms;
@@ -118,8 +114,6 @@ public abstract class AbstractSpecification implements Specification {
     /**
      * {@inheritDoc}
      *
-     * @param object
-     * @param map
      */
     public abstract boolean isSatisfiedBy(Object object, Map map)
             throws Exception;

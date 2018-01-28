@@ -74,8 +74,6 @@ public class LogicalEqSpecification extends AbstractSpecification {
     /**
      * {@inheritDoc}
      *
-     * @param object
-     * @param map
      */
     public boolean isSatisfiedBy(Object object, final Map map)
             throws Exception {
