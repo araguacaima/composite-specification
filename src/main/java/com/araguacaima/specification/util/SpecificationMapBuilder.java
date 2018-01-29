@@ -44,7 +44,7 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
         this.mapUtils = mapUtils;
     }
 
-    private SpecificationMap getInstance(Class clazz)
+    public SpecificationMap getInstance(Class clazz)
             throws IOException {
         ClassLoader classLoader = clazz.getClassLoader();
         Properties prop = new Properties();
