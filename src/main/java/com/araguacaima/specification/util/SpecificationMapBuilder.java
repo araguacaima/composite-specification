@@ -18,7 +18,8 @@
  */
 package com.araguacaima.specification.util;
 
-import com.araguacaima.commons.utils.MapUtils;
+import com.araguacaima.commons.utils.*;
+import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -46,10 +47,15 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
 
     public SpecificationMap getInstance(Class clazz)
             throws IOException {
+        return getInstance(clazz, false);
+    }
+
+    public SpecificationMap getInstance(Class clazz, boolean forceReplace)
+            throws IOException {
         ClassLoader classLoader = clazz.getClassLoader();
         Properties prop = new Properties();
         prop.load(classLoader.getResourceAsStream(propertiesFile));
-        return getInstance(prop, clazz);
+        return buildInstance(prop, clazz, forceReplace, clazz.getClassLoader());
     }
 
     private SpecificationMap getInstance(Properties properties, Class clazz) {
@@ -60,22 +66,33 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
                                            Class clazz,
                                            boolean replace,
                                            ClassLoader classLoader) {
+        SpecificationMap instance;
+        if (applicationContext != null) {
+            instance = applicationContext.getBean(SpecificationMap.class);
+        } else {
+            NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
+            NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
+            instance = new SpecificationMap(notNullOrEmptyStringObjectPredicate,
+                    MapUtils.getInstance(),
+                    new LogicalEvaluator(
+                            new StringUtils(
+                                    notNullOrEmptyStringPredicate,
+                                    new ExceptionUtils())));
+        }
         if (instancesMap.get(clazz.getName()) == null) {
-            SpecificationMap instance = applicationContext.getBean(SpecificationMap.class);
             instance.setClassName(clazz.getName());
             instance.setProperties(properties);
             instance.buildSpecificationMap(classLoader);
             instancesMap.put(clazz.getName(), instance);
         } else {
             if (replace) {
-                SpecificationMap newInstance = applicationContext.getBean(SpecificationMap.class);
-                newInstance.setClassName(clazz.getName());
-                newInstance.setProperties(properties);
-                newInstance.buildSpecificationMap(classLoader);
+                instance.setClassName(clazz.getName());
+                instance.setProperties(properties);
+                instance.buildSpecificationMap(classLoader);
                 SpecificationMap oldInstance = instancesMap.get(clazz.getName());
-                newInstance.getProperties().putAll(oldInstance.getProperties());
+                instance.getProperties().putAll(oldInstance.getProperties());
                 instancesMap.remove(clazz.getName());
-                instancesMap.put(clazz.getName(), newInstance);
+                instancesMap.put(clazz.getName(), instance);
             }
         }
         return instancesMap.get(clazz.getName());

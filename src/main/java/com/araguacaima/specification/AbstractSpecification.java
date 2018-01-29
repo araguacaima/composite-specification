@@ -34,11 +34,11 @@ public abstract class AbstractSpecification implements Specification {
 
     private boolean evaluateAllTerms = false;
 
-    AbstractSpecification() {
+    public AbstractSpecification() {
         this(false);
     }
 
-    AbstractSpecification(boolean evaluateAllTerms) {
+    public AbstractSpecification(boolean evaluateAllTerms) {
         setEvaluateAllTerms(evaluateAllTerms);
     }
 
