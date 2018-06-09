@@ -92,9 +92,16 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
                                     new ExceptionUtils())));
         }
         if (checkInheritance) {
-            List<Class> superClasses = reflectionUtils.recursivelyGetAllSuperClasses(clazz);
-            for (Class superClazz : superClasses) {
-                buildInstance(properties, superClazz, replace, classLoader, false);
+            SpecificationMap instance_ = buildInstance(properties, clazz, replace, classLoader, false);
+            if (instance_ == null) {
+                List<Class> superClasses = reflectionUtils.recursivelyGetAllSuperClasses(clazz);
+                for (Class superClazz : superClasses) {
+                    instance_ = buildInstance(properties, superClazz, replace, classLoader, false);
+                    if (instance_ != null) {
+                        break;
+                    }
+                }
+                return instance_;
             }
         } else {
             if (instancesMap.get(clazz.getName()) == null) {
