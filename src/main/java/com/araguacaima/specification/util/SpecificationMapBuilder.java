@@ -27,10 +27,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
 @Service
@@ -54,30 +51,28 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
 
     public SpecificationMap getInstance(Class clazz, boolean forceReplace)
             throws IOException {
-        return getInstance(clazz, forceReplace, false);
-    }
-
-    public SpecificationMap getInstance(Class clazz, boolean forceReplace, boolean checkInheritance)
-            throws IOException {
         ClassLoader classLoader = clazz.getClassLoader();
         Properties prop = new Properties();
         prop.load(classLoader.getResourceAsStream(propertiesFile));
-        return buildInstance(prop, clazz, forceReplace, clazz.getClassLoader(), checkInheritance);
+        return buildInstance(prop, clazz, forceReplace, clazz.getClassLoader());
     }
 
     private SpecificationMap getInstance(Properties properties, Class clazz) {
-        return getInstance(properties, clazz, false);
+        return buildInstance(properties, clazz, false, clazz.getClassLoader());
     }
 
-    private SpecificationMap getInstance(Properties properties, Class clazz, boolean checkInheritance) {
-        return buildInstance(properties, clazz, false, clazz.getClassLoader(), checkInheritance);
+    public SpecificationMap getInstance(Map<String, String> map, Class clazz) {
+        return buildInstance(mapUtils.toProperties(map), clazz, false, clazz.getClassLoader());
+    }
+
+    public SpecificationMap getInstance(Map<String, String> map, Class clazz, boolean replace) {
+        return buildInstance(mapUtils.toProperties(map), clazz, replace, clazz.getClassLoader());
     }
 
     private SpecificationMap buildInstance(Properties properties,
                                            Class clazz,
                                            boolean replace,
-                                           ClassLoader classLoader,
-                                           boolean checkInheritance) {
+                                           ClassLoader classLoader) {
         SpecificationMap instance;
         if (applicationContext != null) {
             instance = applicationContext.getBean(SpecificationMap.class);
@@ -91,53 +86,93 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
                                     notNullOrEmptyStringPredicate,
                                     new ExceptionUtils())));
         }
-        if (checkInheritance) {
-            SpecificationMap instance_ = buildInstance(properties, clazz, replace, classLoader, false);
-            if (instance_ == null) {
-                List<Class> superClasses = reflectionUtils.recursivelyGetAllSuperClasses(clazz);
-                for (Class superClazz : superClasses) {
-                    instance_ = buildInstance(properties, superClazz, replace, classLoader, false);
-                    if (instance_ != null) {
-                        break;
-                    }
-                }
-                return instance_;
-            }
+
+        if (instancesMap.get(clazz.getName()) == null) {
+            instance.setClassName(clazz.getName());
+            instance.setProperties(properties);
+            instance.buildSpecificationMap(classLoader);
+            instancesMap.put(clazz.getName(), instance);
         } else {
-            if (instancesMap.get(clazz.getName()) == null) {
+            if (replace) {
                 instance.setClassName(clazz.getName());
                 instance.setProperties(properties);
                 instance.buildSpecificationMap(classLoader);
+                SpecificationMap oldInstance = instancesMap.get(clazz.getName());
+                instance.getProperties().putAll(oldInstance.getProperties());
+                instancesMap.remove(clazz.getName());
                 instancesMap.put(clazz.getName(), instance);
-            } else {
-                if (replace) {
-                    instance.setClassName(clazz.getName());
-                    instance.setProperties(properties);
-                    instance.buildSpecificationMap(classLoader);
-                    SpecificationMap oldInstance = instancesMap.get(clazz.getName());
-                    instance.getProperties().putAll(oldInstance.getProperties());
-                    instancesMap.remove(clazz.getName());
-                    instancesMap.put(clazz.getName(), instance);
-                }
             }
         }
+
         return instancesMap.get(clazz.getName());
     }
 
-    public SpecificationMap getInstance(Map<String, String> map, Class clazz) {
-        return getInstance(false, map, clazz);
+    /* ......Instances List........ */
+
+    public List<SpecificationMap> getInstances(Class clazz)
+            throws IOException {
+        return getInstances(clazz, false);
     }
 
-    public SpecificationMap getInstance(boolean checkInheritance, Map<String, String> map, Class clazz) {
-        return buildInstance(mapUtils.toProperties(map), clazz, false, clazz.getClassLoader(), checkInheritance);
+    public List<SpecificationMap> getInstances(Class clazz, boolean forceReplace)
+            throws IOException {
+        ClassLoader classLoader = clazz.getClassLoader();
+        Properties prop = new Properties();
+        prop.load(classLoader.getResourceAsStream(propertiesFile));
+        return buildInstances(prop, clazz, forceReplace, clazz.getClassLoader());
     }
 
-    public SpecificationMap getInstance(Map<String, String> map, Class clazz, boolean replace) {
-        return getInstance(false, map, clazz);
+    private List<SpecificationMap> getInstances(Properties properties, Class clazz) {
+        return buildInstances(properties, clazz, false, clazz.getClassLoader());
     }
 
-    public SpecificationMap getInstance(boolean checkInheritance, Map<String, String> map, Class clazz, boolean replace) {
-        return buildInstance(mapUtils.toProperties(map), clazz, replace, clazz.getClassLoader(), checkInheritance);
+    public List<SpecificationMap> getInstances(Map<String, String> map, Class clazz) {
+        return buildInstances(mapUtils.toProperties(map), clazz, false, clazz.getClassLoader());
+    }
+
+    public List<SpecificationMap> getInstances(Map<String, String> map, Class clazz, boolean replace) {
+        return buildInstances(mapUtils.toProperties(map), clazz, replace, clazz.getClassLoader());
+    }
+
+    private List<SpecificationMap> buildInstances(Properties properties,
+                                                  Class clazz,
+                                                  boolean replace,
+                                                  ClassLoader classLoader) {
+        List<SpecificationMap> instances = new ArrayList<>();
+
+        if (applicationContext != null) {
+            instances.add(applicationContext.getBean(SpecificationMap.class));
+        } else {
+            NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
+            NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
+            instances.add(new SpecificationMap(notNullOrEmptyStringObjectPredicate,
+                    MapUtils.getInstance(),
+                    new LogicalEvaluator(
+                            new StringUtils(
+                                    notNullOrEmptyStringPredicate,
+                                    new ExceptionUtils()))));
+        }
+        instances.addAll(buildInstances(properties, clazz, replace, classLoader, true));
+        Collections.reverse(instances);
+        return instances;
+    }
+
+    private List<SpecificationMap> buildInstances(Properties properties,
+                                                  Class clazz,
+                                                  boolean replace,
+                                                  ClassLoader classLoader,
+                                                  boolean checkInheritance) {
+        List<SpecificationMap> instances = new ArrayList<>();
+        if (checkInheritance) {
+            instances.add(buildInstance(properties, clazz, replace, classLoader));
+            List<Class> superClasses = reflectionUtils.recursivelyGetAllSuperClasses(clazz);
+            for (Class superClazz : superClasses) {
+                instances.addAll(buildInstances(properties, superClazz, replace, classLoader, false));
+            }
+        } else {
+            instances.add(buildInstance(properties, clazz, replace, classLoader));
+        }
+        return instances;
     }
 
     public Map<String, SpecificationMap> getInstancesMap() {
