@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+@SuppressWarnings("WeakerAccess")
 public class IsNumberSpec extends AbstractSpecification {
 
     public IsNumberSpec() {
@@ -14,7 +15,7 @@ public class IsNumberSpec extends AbstractSpecification {
         super(evaluateAllTerms);
     }
 
-    public boolean isSatisfiedBy(Object object, Map map) {
+    public boolean isSatisfiedBy(Object object, Map<Object, Object> map) {
         try {
             Double.parseDouble(object.toString());
             return true;
@@ -23,7 +24,7 @@ public class IsNumberSpec extends AbstractSpecification {
         }
     }
 
-    public Collection/*<Object>*/ getTerms() {
-        return new ArrayList();
+    public Collection<Object> getTerms() {
+        return new ArrayList<>();
     }
 }

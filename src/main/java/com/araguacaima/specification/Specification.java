@@ -90,7 +90,7 @@ public interface Specification {
      * @return {@code true} if {@code t} satisfies the specification.
      * @throws Exception Thrown for any kind of exceptions.
      */
-    boolean isSatisfiedBy(Object object, Map map)
+    boolean isSatisfiedBy(Object object, Map<Object, Object> map)
             throws Exception;
 
     /**

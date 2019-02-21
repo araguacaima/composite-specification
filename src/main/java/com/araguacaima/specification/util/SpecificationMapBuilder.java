@@ -142,15 +142,6 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
 
         if (applicationContext != null) {
             instances.add(applicationContext.getBean(SpecificationMap.class));
-        } else {
-            NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
-            NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
-            instances.add(new SpecificationMap(notNullOrEmptyStringObjectPredicate,
-                    MapUtils.getInstance(),
-                    new LogicalEvaluator(
-                            new StringUtils(
-                                    notNullOrEmptyStringPredicate,
-                                    new ExceptionUtils()))));
         }
         instances.addAll(buildInstances(properties, clazz, replace, classLoader, true));
         Collections.sort(instances);

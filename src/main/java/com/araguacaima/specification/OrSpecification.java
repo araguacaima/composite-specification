@@ -24,8 +24,9 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * OR specification, used to create a new specifcation that is the OR of two other specifications.
+ * OR specification, used to create a new specification that is the OR of two other specifications.
  */
+@SuppressWarnings("WeakerAccess")
 public class OrSpecification extends AbstractSpecification {
 
     private final Specification spec1;
@@ -56,7 +57,7 @@ public class OrSpecification extends AbstractSpecification {
     }
 
     public Collection<Object> getTerms() {
-        Collection<Object> terms = new ArrayList();
+        Collection<Object> terms = new ArrayList<>();
         terms.addAll(getLeftNode().getTerms());
         terms.addAll(getRightNode().getTerms());
         return terms;
@@ -74,7 +75,7 @@ public class OrSpecification extends AbstractSpecification {
      * {@inheritDoc}
      *
      */
-    public boolean isSatisfiedBy(Object object, final Map map)
+    public boolean isSatisfiedBy(Object object, final Map<Object, Object> map)
             throws Exception {
 
         if (getEvaluateAllTerms()) {

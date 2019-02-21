@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+@SuppressWarnings("WeakerAccess")
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,
         proxyMode = ScopedProxyMode.DEFAULT)
@@ -184,12 +185,12 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
                     o1 -> ((String) o1).startsWith(className),
                     notNullOrEmptyStringObjectPredicate));
         });
-        Collection methods = new ArrayList(propertiesByClass.keySet());
+        Collection<Object> methods = new ArrayList<>(propertiesByClass.keySet());
         CollectionUtils.transform(methods, o -> {
             String key = ((String) o);
             return key.substring(key.lastIndexOf(".") + 1);
         });
-        Set methodsFiltered = new HashSet(methods);
+        Set<Object> methodsFiltered = new HashSet<>(methods);
         IterableUtils.forEach(methodsFiltered, o -> {
             String methodName = (String) o;
             boolean evaluateAllTerms;
@@ -243,11 +244,12 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
         return getTermsByMethod(methodName, false);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private Collection getTermsByMethod(String methodName, boolean evaluateAllTerms) {
         String expression = (String) properties.get(className + "." + methodName);
         logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
         logicalEvaluator.setExpression(expression);
-        Collection tokens = new ArrayList();
+        Collection<Expression> tokens = new ArrayList<>();
 
         try {
             tokens = logicalEvaluator.getTokens();
@@ -257,10 +259,10 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
         }
 
         CollectionUtils.transform(tokens, o -> {
-            String tokenClassName = (String) o;
+            String tokenClassName = o.toString();
             try {
                 Class clazz = Class.forName(tokenClassName);
-                return clazz.newInstance();
+                return (Expression) clazz.newInstance();
             } catch (ClassNotFoundException e) {
                 String message = "It was not possible to find class '" + className + "' because of an Exception of "
                         + "type '" + e.getClass().getName() + "'. Does that class really exists and its reacheable "
@@ -284,7 +286,7 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
             try {
                 ClassLoader classLoader = Class.forName(className).getClassLoader();
                 Class clazz = classLoader.loadClass(tokenClassName);
-                return clazz.newInstance();
+                return (Expression) clazz.newInstance();
             } catch (ClassNotFoundException e) {
                 String message = "It was not possible to find class " + className + "' because of an Exception of " +
                         "type '" + e.getClass().getName() + "'. Does that class really exists and its reacheable by "
@@ -322,6 +324,6 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
         }
         int order = this.logicalEvaluator.getOrder();
         int order1 = o.getLogicalEvaluator().getOrder();
-        return Integer.compare(order, order1);
+        return Integer.compare(order1, order);
     }
 }

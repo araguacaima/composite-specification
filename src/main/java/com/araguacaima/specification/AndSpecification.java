@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * AND specification, used to create a new specifcation that is the AND of two other specifications.
  */
+@SuppressWarnings("WeakerAccess")
 public class AndSpecification extends AbstractSpecification {
 
     private final Specification spec1;
@@ -56,7 +57,7 @@ public class AndSpecification extends AbstractSpecification {
     }
 
     public Collection<Object> getTerms() {
-        Collection<Object> terms = new ArrayList();
+        Collection<Object> terms = new ArrayList<>();
         terms.addAll(getLeftNode().getTerms());
         terms.addAll(getRightNode().getTerms());
         return terms;
@@ -74,7 +75,7 @@ public class AndSpecification extends AbstractSpecification {
      * {@inheritDoc}
      *
      */
-    public boolean isSatisfiedBy(Object object, final Map map)
+    public boolean isSatisfiedBy(Object object, final Map<Object, Object> map)
             throws Exception {
         if (getEvaluateAllTerms()) {
             boolean result1 = spec1.isSatisfiedBy(object, map);

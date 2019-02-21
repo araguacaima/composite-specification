@@ -83,8 +83,7 @@ public interface Evaluator {
 
     NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r);
 
-    Collection getTokens()
-            throws ExpressionException;
+    Collection<Expression> getTokens() throws ExpressionException;
 
     String infixToPostFix(String str);
 

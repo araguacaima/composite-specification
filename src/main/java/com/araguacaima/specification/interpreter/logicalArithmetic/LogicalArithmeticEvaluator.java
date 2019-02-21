@@ -57,7 +57,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     private static final Character OR = '|';
     private static final Character STARTING_PARENTHESIS = '(';
     private static final Character SUB = '-';
-    private static final HashMap operators = new HashMap();
+    private static final HashMap<Character, Object> operators = new HashMap<>();
 
     static {
         operators.put(GT, "6");
@@ -143,10 +143,10 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     }
 
     public String infixToPostFix(String str) {
-        Stack s = new Stack();
+        Stack<String> s = new Stack<>();
         StringBuilder pfExpr = new StringBuilder();
         String tempStr;
-        Collection<String> symbolOperators = getOperators();
+        Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
         if (!StringUtils.isBlank(str)) {
             for (int i = 0; i < str.length(); ) {
@@ -168,10 +168,10 @@ public class LogicalArithmeticEvaluator implements Evaluator {
                 }
                 //for ')' pop all stack contents until '('
                 if (currChar.equals(CLOSING_PARENTHESIS.toString())) {
-                    tempStr = (String) s.pop();
+                    tempStr = s.pop();
                     while (!tempStr.equals(STARTING_PARENTHESIS.toString())) {
                         pfExpr.append(tempStr);
-                        tempStr = (String) s.pop();
+                        tempStr = s.pop();
                     }
                     str = str.substring(1).trim();
                     continue;
@@ -180,7 +180,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
                 // operator
                 if (isOperator(currChar)) {
                     if (!s.isEmpty()) {
-                        tempStr = (String) s.pop();
+                        tempStr = s.pop();
                         String strVal1 = (String) operators.get(tempStr.toCharArray()[0]);
                         int val1 = Integer.parseInt(strVal1);
                         String strVal2 = (String) operators.get(currChar.toCharArray()[0]);
@@ -190,7 +190,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
                             pfExpr.append(tempStr);
                             val1 = -100;
                             if (!s.isEmpty()) {
-                                tempStr = (String) s.pop();
+                                tempStr = s.pop();
                                 strVal1 = (String) operators.get(tempStr.toCharArray()[0]);
                                 val1 = Integer.parseInt(strVal1);
 
@@ -207,7 +207,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
             }// for
         }
         while (!s.isEmpty()) {
-            tempStr = (String) s.pop();
+            tempStr = s.pop();
             pfExpr.append(tempStr);
         }
         log.info("Expression in postFix: " + pfExpr);
@@ -215,8 +215,8 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     }
 
     public Expression buildTree(String expr) {
-        Stack s = new Stack();
-        Collection<String> symbolOperators = getOperators();
+        Stack<Expression> s = new Stack<>();
+        Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
         Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
@@ -233,18 +233,18 @@ public class LogicalArithmeticEvaluator implements Evaluator {
                 s.push(e);
                 expr = expr.substring(token.length()).trim();
             } else {
-                Expression r = (Expression) s.pop();
-                Expression l = (Expression) s.pop();
+                Expression r = s.pop();
+                Expression l = s.pop();
                 Expression n = getNonTerminalExpression(currChar, l, r);
                 s.push(n);
                 expr = expr.substring(1).trim();
             }
         }//for
-        return s.size() == 0 ? null : (Expression) s.pop();
+        return s.size() == 0 ? null : s.pop();
     }
 
-    private static Collection<String> getOperators() {
-        return new HashSet(operators.keySet());
+    private static HashSet<Character> getOperators() {
+        return new HashSet<>(operators.keySet());
     }
 
     public boolean isOperator(String str) {
@@ -299,10 +299,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     public void setContext(final Map<String, Object> contextMap) {
         final LogicalArithmeticContext c = new LogicalArithmeticContext();
         if (contextMap != null) {
-            IterableUtils.forEach(contextMap.keySet(), o -> {
-                String key = (String) o;
-                c.assign(key, (Double) contextMap.get(key));
-            });
+            IterableUtils.forEach(contextMap.keySet(), o -> c.assign(o, (Double) contextMap.get(o)));
         }
         ctx = c;
     }

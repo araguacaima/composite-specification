@@ -45,7 +45,7 @@ public class LogicalEvaluator implements Evaluator {
     public static final Character OR = '|';
     public static final Character STARTING_PARENTHESIS = '(';
     private static final Character EQ = '=';
-    private static final HashMap operators = new HashMap();
+    private static final HashMap<Character, Object> operators = new HashMap<>();
 
     static {
         operators.put(AND, "1");
@@ -109,7 +109,7 @@ public class LogicalEvaluator implements Evaluator {
 
     public String infixToPostFix(String input) {
         String str = input;
-        Stack s = new Stack();
+        Stack<String> s = new Stack<>();
         StringBuilder pfExpr = new StringBuilder();
         String tempStr;
         Collection<Character> symbolOperators = getOperators();
@@ -134,10 +134,10 @@ public class LogicalEvaluator implements Evaluator {
                 }
                 //for ')' pop all stack contents until '('
                 if (currChar.equals(CLOSING_PARENTHESIS.toString())) {
-                    tempStr = (String) s.pop();
+                    tempStr = s.pop();
                     while (!tempStr.equals(STARTING_PARENTHESIS.toString())) {
                         pfExpr.append(tempStr);
-                        tempStr = (String) s.pop();
+                        tempStr = s.pop();
                     }
                     str = str.substring(1).trim();
                     continue;
@@ -146,7 +146,7 @@ public class LogicalEvaluator implements Evaluator {
                 // operator
                 if (isOperator(currChar)) {
                     if (!s.isEmpty()) {
-                        tempStr = (String) s.pop();
+                        tempStr = s.pop();
                         String strVal1 = (String) operators.get(tempStr.toCharArray()[0]);
                         int val1 = Integer.parseInt(strVal1);
                         String strVal2 = (String) operators.get(currChar.toCharArray()[0]);
@@ -156,7 +156,7 @@ public class LogicalEvaluator implements Evaluator {
                             pfExpr.append(tempStr);
                             val1 = -100;
                             if (!s.isEmpty()) {
-                                tempStr = (String) s.pop();
+                                tempStr = s.pop();
                                 strVal1 = (String) operators.get(tempStr.toCharArray()[0]);
                                 val1 = Integer.parseInt(strVal1);
 
@@ -173,7 +173,7 @@ public class LogicalEvaluator implements Evaluator {
             }// for
         }
         while (!s.isEmpty()) {
-            tempStr = (String) s.pop();
+            tempStr = s.pop();
             pfExpr.append(tempStr);
         }
         return pfExpr.toString();
@@ -181,7 +181,7 @@ public class LogicalEvaluator implements Evaluator {
 
     public Expression buildTree(String expr)
             throws ExpressionException {
-        Stack s = new Stack();
+        Stack<Expression> s = new Stack<>();
         Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
         Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
@@ -189,7 +189,7 @@ public class LogicalEvaluator implements Evaluator {
             String currChar = expr.substring(i, 1);
 
             if (isNot(currChar)) {
-                Expression r = (Expression) s.pop();
+                Expression r = s.pop();
                 Expression n = getNonTerminalExpression(currChar, null, r);
                 s.push(n);
                 expr = expr.substring(1).trim();
@@ -207,12 +207,12 @@ public class LogicalEvaluator implements Evaluator {
                 Expression r;
                 Expression l;
                 try {
-                    r = (Expression) s.pop();
+                    r = s.pop();
                 } catch (java.util.EmptyStackException ese) {
                     throw new ExpressionException("There is no right element in the expression to evaluating for");
                 }
                 try {
-                    l = (Expression) s.pop();
+                    l = s.pop();
                 } catch (java.util.EmptyStackException ese) {
                     throw new ExpressionException("There is no left element in the expression to evaluating for");
                 }
@@ -221,11 +221,11 @@ public class LogicalEvaluator implements Evaluator {
                 expr = expr.substring(1).trim();
             }
         }//for
-        return s.size() == 0 ? null : (Expression) s.pop();
+        return s.size() == 0 ? null : s.pop();
     }
 
-    private static Collection<Character> getOperators() {
-        return new HashSet(operators.keySet());
+    private static HashSet<Character> getOperators() {
+        return new HashSet<>(operators.keySet());
     }
 
     public boolean isOperator(String str) {
@@ -284,10 +284,7 @@ public class LogicalEvaluator implements Evaluator {
     public void setContext(final Map<String, Object> contextMap) {
         final LogicalContext c = new LogicalContext();
         if (contextMap != null) {
-            IterableUtils.forEach(contextMap.keySet(), o -> {
-                String key = (String) o;
-                c.assign(key, (Boolean) contextMap.get(key));
-            });
+            IterableUtils.forEach(contextMap.keySet(), o -> c.assign(o, (Boolean) contextMap.get(o)));
         }
         ctx = c;
     }
@@ -300,9 +297,9 @@ public class LogicalEvaluator implements Evaluator {
         expression = expr;
     }
 
-    public Collection getTokens()
+    public Collection<Expression> getTokens()
             throws ExpressionException {
         Expression exp = buildExpressionTree();
-        return exp == null ? new ArrayList() : exp.getTerms();
+        return exp == null ? new ArrayList<>() : exp.getTerms();
     }
 } // End of class

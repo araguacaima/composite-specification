@@ -26,8 +26,7 @@ import java.util.Collection;
 
 public interface Expression {
 
-    Expression evaluate(Context c)
-            throws ExpressionException, ContextException;
+    Expression evaluate(Context c) throws ExpressionException, ContextException;
 
     Object getCondition();
 
@@ -55,7 +54,7 @@ public interface Expression {
 
     Expression getRightNode();
 
-    Collection getTerms();
+    Collection<Expression> getTerms();
 
     Object getValue();
 }

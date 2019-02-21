@@ -97,11 +97,11 @@ public class AndExpression extends NonTerminalLogicalExpression {
         return null;
     }
 
-    public Collection getTerms() {
-        Collection terms = new ArrayList();
+    public Collection<Expression> getTerms() {
+        Collection<Expression> terms = new ArrayList<>();
         terms.addAll(getLeftNode().getTerms());
         terms.addAll(getRightNode().getTerms());
-        return new HashSet(terms);
+        return new HashSet<>(terms);
     }
 
     public Object getValue() {

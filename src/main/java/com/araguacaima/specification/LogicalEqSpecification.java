@@ -27,6 +27,7 @@ import java.util.Map;
  * Logical Equality specification, used to create a new specifcation that is the biconditional of two other
  * specifications.
  */
+@SuppressWarnings("WeakerAccess")
 public class LogicalEqSpecification extends AbstractSpecification {
 
     private final Specification spec1;
@@ -57,7 +58,7 @@ public class LogicalEqSpecification extends AbstractSpecification {
     }
 
     public Collection<Object> getTerms() {
-        Collection<Object> terms = new ArrayList();
+        Collection<Object> terms = new ArrayList<>();
         terms.addAll(getLeftNode().getTerms());
         terms.addAll(getRightNode().getTerms());
         return terms;
@@ -75,7 +76,7 @@ public class LogicalEqSpecification extends AbstractSpecification {
      * {@inheritDoc}
      *
      */
-    public boolean isSatisfiedBy(Object object, final Map map)
+    public boolean isSatisfiedBy(Object object, final Map<Object, Object> map)
             throws Exception {
 
         boolean result1 = spec1.isSatisfiedBy(object, map);

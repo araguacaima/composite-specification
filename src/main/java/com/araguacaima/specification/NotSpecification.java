@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * NOT decorator, used to create a new specifcation that is the inverse (NOT) of the given specification.
  */
+@SuppressWarnings("WeakerAccess")
 public class NotSpecification extends AbstractSpecification {
 
     private final Specification spec1;
@@ -45,7 +46,7 @@ public class NotSpecification extends AbstractSpecification {
     }
 
     public Collection<Object> getTerms() {
-        Collection<Object> terms = new ArrayList();
+        Collection<Object> terms = new ArrayList<>();
         Specification left = getLeftNode();
         if (left != null) {
             terms.addAll(left.getTerms());
@@ -69,7 +70,7 @@ public class NotSpecification extends AbstractSpecification {
      * {@inheritDoc}
      *
      */
-    public boolean isSatisfiedBy(Object object, final Map map)
+    public boolean isSatisfiedBy(Object object, final Map<Object, Object> map)
             throws Exception {
         return !spec1.isSatisfiedBy(object, map);
     }

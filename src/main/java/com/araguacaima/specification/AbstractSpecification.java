@@ -115,7 +115,7 @@ public abstract class AbstractSpecification implements Specification {
      * {@inheritDoc}
      *
      */
-    public abstract boolean isSatisfiedBy(Object object, Map map)
+    public abstract boolean isSatisfiedBy(Object object, Map<Object, Object> map)
             throws Exception;
 
     /**
