@@ -27,8 +27,9 @@ import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.exception.InvalidExpressionException;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.TransformerUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.TransformerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,6 +59,7 @@ public class ArithmeticEvaluator implements Evaluator {
     private boolean evaluateAllTerms;
     private String expression;
     private StringUtils stringUtils;
+    private int order = 0;
 
     @Autowired
     public ArithmeticEvaluator(StringUtils stringUtils) {
@@ -240,7 +242,7 @@ public class ArithmeticEvaluator implements Evaluator {
     public void setContext(final Map<String, Object> contextMap) {
         final ArithmeticContext c = new ArithmeticContext();
         if (contextMap != null) {
-            CollectionUtils.forAllDo(contextMap.keySet(), o -> {
+            IterableUtils.forEach(contextMap.keySet(), o -> {
                 String key = (String) o;
                 c.assign(key, (Double) contextMap.get(key));
             });
@@ -254,6 +256,16 @@ public class ArithmeticEvaluator implements Evaluator {
 
     public void setEvaluateAllTerms(boolean evaluateAllTerms) {
         this.evaluateAllTerms = evaluateAllTerms;
+    }
+
+    @Override
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    @Override
+    public int getOrder() {
+        return this.order;
     }
 
     public String getExpression() {

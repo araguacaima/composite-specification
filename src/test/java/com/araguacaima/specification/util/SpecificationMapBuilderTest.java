@@ -30,7 +30,7 @@ public class SpecificationMapBuilderTest {
         Map<String, String> map = new HashMap<>();
         map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.execute_1",
                 "com.araguacaima.specification.AlwaysTrueSpec & com.araguacaima.specification.AlwaysFalseSpec");
-        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.tal_0",
+        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.tal_0|3",
                 "com.araguacaima.specification.AlwaysTrueSpec");
         map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.tal2", null);
         specificationMap = specificationMapBuilder.getInstance(map, SpecificationMapBuilderTest.class);

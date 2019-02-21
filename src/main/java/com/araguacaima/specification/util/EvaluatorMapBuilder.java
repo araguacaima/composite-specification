@@ -29,7 +29,8 @@ import com.araguacaima.specification.interpreter.logical.LogicalContext;
 import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticContext;
 import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticEvaluator;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -132,7 +133,7 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
     }
 
     private void fillLogicalEvaluatorMap(final Properties properties, final boolean evaluateAllTerms) {
-        CollectionUtils.forAllDo(properties.keySet(), o -> {
+        IterableUtils.forEach(properties.keySet(), o -> {
             String key = (String) o;
             try {
                 logicalEvaluatorMap.put(key, buildExpression((String) properties.get(key), evaluateAllTerms));
@@ -166,7 +167,7 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
             }
             final ArithmeticContext arithmeticContext = new ArithmeticContext();
 
-            CollectionUtils.forAllDo(context.keySet(), o -> {
+            IterableUtils.forEach(context.keySet(), o -> {
                 String key = (String) o;
                 arithmeticContext.assign(key, Double.valueOf(context.get(key).toString()));
             });
@@ -204,7 +205,7 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
             }
             final LogicalArithmeticContext logicalArithmeticContext = new LogicalArithmeticContext();
 
-            CollectionUtils.forAllDo(context.keySet(), o -> {
+            IterableUtils.forEach(context.keySet(), o -> {
                 String key = (String) o;
                 logicalArithmeticContext.assign(key, Double.valueOf(context.get(key).toString()));
             });
@@ -226,7 +227,7 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
             }
             final LogicalContext logicalContext = new LogicalContext();
 
-            CollectionUtils.forAllDo(context.keySet(), o -> {
+            IterableUtils.forEach(context.keySet(), o -> {
                 String key = (String) o;
                 logicalContext.assign(key, Boolean.valueOf(context.get(key).toString()));
             });

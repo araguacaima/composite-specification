@@ -29,7 +29,8 @@ import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.TerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.logical.*;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,8 @@ import java.util.*;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,
-       proxyMode = ScopedProxyMode.DEFAULT)
-public class SpecificationMap {
+        proxyMode = ScopedProxyMode.DEFAULT)
+public class SpecificationMap implements Comparable<SpecificationMap> {
 
     private static final Logger log = LoggerFactory.getLogger(SpecificationMap.class);
     private final Map<String, Specification> specificationMap = new HashMap<>();
@@ -70,12 +71,17 @@ public class SpecificationMap {
         this.properties.putAll(properties);
     }
 
-    private Specification buildSpecification(boolean evaluateAllTerms, String expression, ClassLoader classLoader)
+    private Specification buildSpecification(boolean evaluateAllTerms, int order, String expression, ClassLoader classLoader)
             throws ExpressionException {
         Specification result = new AbstractSpecificationImpl(evaluateAllTerms);
         logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
         logicalEvaluator.setExpression(expression);
+        logicalEvaluator.setOrder(order);
         return buildSpecificationFromExpression(logicalEvaluator.buildExpressionTree(), result, classLoader);
+    }
+
+    private LogicalEvaluator getLogicalEvaluator() {
+        return logicalEvaluator;
     }
 
     private Specification buildSpecificationFromExpression(Expression node, Specification spec, ClassLoader classLoader)
@@ -98,7 +104,7 @@ public class SpecificationMap {
                         try {
                             spec = (Specification) clazz.getSuperclass().getConstructor(new Class[]{Boolean.TYPE})
                                     .newInstance(
-                                    new Object[]{spec.getEvaluateAllTerms()});
+                                            new Object[]{spec.getEvaluateAllTerms()});
                         } catch (InvocationTargetException e1) {
                             String message = "The class '" + className + "' exists but, it was not possible to " +
                                     "instantiate a concrete object " + "for it because of an Exception of type '" + e
@@ -172,7 +178,7 @@ public class SpecificationMap {
         });
         Set<Object> classesSet = new HashSet<>(classes);
         final Map<Object, Object> propertiesByClass = new HashMap<>();
-        CollectionUtils.forAllDo(classesSet, o -> {
+        IterableUtils.forEach(classesSet, o -> {
             final String className = (String) o;
             propertiesByClass.putAll(mapUtils.select(properties,
                     o1 -> ((String) o1).startsWith(className),
@@ -184,22 +190,31 @@ public class SpecificationMap {
             return key.substring(key.lastIndexOf(".") + 1);
         });
         Set methodsFiltered = new HashSet(methods);
-        CollectionUtils.forAllDo(methodsFiltered, o -> {
+        IterableUtils.forEach(methodsFiltered, o -> {
             String methodName = (String) o;
             boolean evaluateAllTerms;
             String[] tokens = methodName.split("_");
+            int order = 0;
             if (tokens.length == 2) {
                 methodName = tokens[0];
-                evaluateAllTerms = tokens[1].equals("1");
+                String token = tokens[1];
+                String[] modifiers = token.split("\\|");
+                if (modifiers.length == 1) {
+                    evaluateAllTerms = token.equals("1");
+                } else if (modifiers.length == 0) {
+                    evaluateAllTerms = false;
+                } else {
+                    evaluateAllTerms = modifiers[0].equals("1");
+                    order = Integer.parseInt(modifiers[1]);
+                }
             } else {
                 evaluateAllTerms = false;
             }
             try {
                 String property = (String) properties.get(className + "." + o);
                 if (StringUtils.isNotBlank(property)) {
-                    final Specification value = buildSpecification(evaluateAllTerms, property, classLoader);
+                    final Specification value = buildSpecification(evaluateAllTerms, order, property, classLoader);
                     specificationMap.put(methodName, value);
-
                 }
             } catch (Exception ignored) {
                 ignored.printStackTrace();
@@ -298,5 +313,15 @@ public class SpecificationMap {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    @Override
+    public int compareTo(SpecificationMap o) {
+        if (o == null) {
+            return -1;
+        }
+        int order = this.logicalEvaluator.getOrder();
+        int order1 = o.getLogicalEvaluator().getOrder();
+        return Integer.compare(order, order1);
     }
 }

@@ -153,7 +153,7 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
                                     new ExceptionUtils()))));
         }
         instances.addAll(buildInstances(properties, clazz, replace, classLoader, true));
-        Collections.reverse(instances);
+        Collections.sort(instances);
         return instances;
     }
 

@@ -31,8 +31,9 @@ import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.exception.InvalidExpressionException;
 import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 import com.araguacaima.specification.interpreter.logical.LogicalExpression;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.TransformerUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.TransformerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -81,6 +82,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     private String expression;
     private LogicalEvaluator logicalEvaluator;
     private StringUtils stringUtils;
+    private int order = 0;
 
     @Autowired
     public LogicalArithmeticEvaluator(StringUtils stringUtils, LogicalEvaluator logicalEvaluator) {
@@ -280,6 +282,16 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         this.evaluateAllTerms = evaluateAllTerms;
     }
 
+    @Override
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    @Override
+    public int getOrder() {
+        return this.order;
+    }
+
     public Context getContext() {
         return ctx;
     }
@@ -287,7 +299,7 @@ public class LogicalArithmeticEvaluator implements Evaluator {
     public void setContext(final Map<String, Object> contextMap) {
         final LogicalArithmeticContext c = new LogicalArithmeticContext();
         if (contextMap != null) {
-            CollectionUtils.forAllDo(contextMap.keySet(), o -> {
+            IterableUtils.forEach(contextMap.keySet(), o -> {
                 String key = (String) o;
                 c.assign(key, (Double) contextMap.get(key));
             });

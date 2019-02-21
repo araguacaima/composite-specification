@@ -53,6 +53,7 @@
         <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
         <aspectj.version>1.8.4</aspectj.version>
         <com.araguacaima-commons-utils>1.0.1-SNAPSHOT</com.araguacaima-commons-utils>
+        <org.apache.commons-commons-collections4>4.1</org.apache.commons-commons-collections4>
 
         <!-- Generic properties -->
         <java.version>1.8</java.version>
@@ -121,6 +122,14 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectj.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${org.apache.commons-commons-collections4}</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Tests -->

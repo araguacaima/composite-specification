@@ -27,8 +27,9 @@ import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.exception.InvalidExpressionException;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.TransformerUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.TransformerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +61,7 @@ public class LogicalEvaluator implements Evaluator {
     private boolean evaluateAllTerms;
     private String expression;
     private StringUtils stringUtils;
+    private int order = 0;
 
     @Autowired
     public LogicalEvaluator(StringUtils stringUtils) {
@@ -265,6 +267,16 @@ public class LogicalEvaluator implements Evaluator {
         this.evaluateAllTerms = evaluateAllTerms;
     }
 
+    @Override
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    @Override
+    public int getOrder() {
+        return this.order;
+    }
+
     public Context getContext() {
         return ctx;
     }
@@ -272,7 +284,7 @@ public class LogicalEvaluator implements Evaluator {
     public void setContext(final Map<String, Object> contextMap) {
         final LogicalContext c = new LogicalContext();
         if (contextMap != null) {
-            CollectionUtils.forAllDo(contextMap.keySet(), o -> {
+            IterableUtils.forEach(contextMap.keySet(), o -> {
                 String key = (String) o;
                 c.assign(key, (Boolean) contextMap.get(key));
             });

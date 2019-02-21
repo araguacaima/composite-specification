@@ -53,7 +53,7 @@ public interface Evaluator {
      * Indicates if its required to evaluate individually all terms before determine the final logical result of
      * the expression
      *
-     * @param evaluateAllTerms A value of true indicates that its pretended to evaluate all terms indenpendently of is
+     * @param evaluateAllTerms A value of true indicates that its pretended to evaluate all terms independently of is
      *                         logical result before determine the final logical result of the entire expression. A
      *                         value of false indicates that the evaluation breaks in any condition (term) return a
      *                         value that satisfy the entire expression without the need of evaluate the remaining
@@ -61,6 +61,21 @@ public interface Evaluator {
      *                         The default value is false.
      */
     void setEvaluateAllTerms(boolean evaluateAllTerms);
+
+    /**
+     * Indicates the execution order of the specification
+     *
+     * @param order The evaluation order,.The default value is 0.
+     */
+    void setOrder(int order);
+
+    /**
+     * Obtains the order of evaluation of the specification
+     *
+     * @return The order field
+     */
+    int getOrder();
+
 
     String getExpression();
 
