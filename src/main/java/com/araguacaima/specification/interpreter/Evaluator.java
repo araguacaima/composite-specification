@@ -42,6 +42,8 @@ public interface Evaluator {
 
     void setContext(Context c);
 
+    void setContext(Map<String, Object> contextMap);
+
     /**
      * Obtains the value of the evaluateAllTerms field
      *
@@ -63,19 +65,18 @@ public interface Evaluator {
     void setEvaluateAllTerms(boolean evaluateAllTerms);
 
     /**
-     * Indicates the execution order of the specification
-     *
-     * @param order The evaluation order,.The default value is 0.
-     */
-    void setOrder(int order);
-
-    /**
      * Obtains the order of evaluation of the specification
      *
      * @return The order field
      */
     int getOrder();
 
+    /**
+     * Indicates the execution order of the specification
+     *
+     * @param order The evaluation order,.The default value is 0.
+     */
+    void setOrder(int order);
 
     String getExpression();
 
@@ -88,6 +89,4 @@ public interface Evaluator {
     String infixToPostFix(String str);
 
     boolean isOperator(String str);
-
-    void setContext(Map<String, Object> contextMap);
 }

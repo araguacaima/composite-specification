@@ -22,12 +22,10 @@ package com.araguacaima.specification.util;
 import com.araguacaima.commons.utils.ReflectionUtils;
 import com.araguacaima.specification.Specification;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Component
 public class SpecificationUtil {
 
     private ReflectionUtils reflectionUtils;

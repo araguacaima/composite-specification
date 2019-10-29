@@ -33,38 +33,27 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
-@Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,
-        proxyMode = ScopedProxyMode.DEFAULT)
+
 public class SpecificationMap implements Comparable<SpecificationMap> {
 
     private static final Logger log = LoggerFactory.getLogger(SpecificationMap.class);
     private final Map<String, Specification> specificationMap = new HashMap<>();
     private String className;
     private LogicalEvaluator logicalEvaluator;
-    private MapUtils mapUtils;
-    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
+    private MapUtils mapUtils = MapUtils.getInstance();
+    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
     private Properties properties = new Properties();
 
     private SpecificationMap() {
 
     }
 
-    @Autowired
-    public SpecificationMap(NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate,
-                            MapUtils mapUtils, LogicalEvaluator logicalEvaluator) {
-        this.notNullOrEmptyStringObjectPredicate = notNullOrEmptyStringObjectPredicate;
-        this.mapUtils = mapUtils;
+    public SpecificationMap(LogicalEvaluator logicalEvaluator) {
         this.logicalEvaluator = logicalEvaluator;
     }
 
@@ -93,8 +82,8 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
                 try {
                     Class<Specification> clazz = (Class<Specification>) classLoader.loadClass(nodeclassName);
                     try {
-                        spec = clazz.getConstructor(new Class[]{Boolean.TYPE}).newInstance(new Object[]{spec
-                                .getEvaluateAllTerms()});
+                        spec = clazz.getConstructor(new Class[]{Boolean.TYPE}).newInstance(spec
+                                .getEvaluateAllTerms());
                     } catch (InvocationTargetException e) {
                         String message = "The class '" + className + "' exists but, it was not possible to " +
                                 "instantiate a concrete object " + "for it because of an Exception of type '" + e

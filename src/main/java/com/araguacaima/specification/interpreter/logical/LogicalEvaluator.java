@@ -30,12 +30,9 @@ import com.araguacaima.specification.interpreter.exception.InvalidExpressionExce
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.TransformerUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component
 public class LogicalEvaluator implements Evaluator {
 
     public static final Character AND = '&';
@@ -60,17 +57,19 @@ public class LogicalEvaluator implements Evaluator {
     private Context ctx;
     private boolean evaluateAllTerms;
     private String expression;
-    private StringUtils stringUtils;
+    private StringUtils stringUtils = StringUtils.getInstance();
     private int order = 0;
 
-    @Autowired
-    public LogicalEvaluator(StringUtils stringUtils) {
+    public LogicalEvaluator() {
         this.evaluateAllTerms = false;
-        this.stringUtils = stringUtils;
     }
 
     public static Map getFullOperators() {
         return operators;
+    }
+
+    private static HashSet<Character> getOperators() {
+        return new HashSet<>(operators.keySet());
     }
 
     public void addToContext(String key, String value) {
@@ -81,10 +80,6 @@ public class LogicalEvaluator implements Evaluator {
             throws ExpressionException, ContextException {
         setContext(c);
         return evaluate();
-    }
-
-    public void setContext(Context c) {
-        ctx = c;
     }
 
     private boolean evaluate()
@@ -224,10 +219,6 @@ public class LogicalEvaluator implements Evaluator {
         return s.size() == 0 ? null : s.pop();
     }
 
-    private static HashSet<Character> getOperators() {
-        return new HashSet<>(operators.keySet());
-    }
-
     public boolean isOperator(String str) {
         String incoming = str.trim();
         return operators.containsKey(incoming.charAt(0));
@@ -268,17 +259,21 @@ public class LogicalEvaluator implements Evaluator {
     }
 
     @Override
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    @Override
     public int getOrder() {
         return this.order;
     }
 
+    @Override
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
     public Context getContext() {
         return ctx;
+    }
+
+    public void setContext(Context c) {
+        ctx = c;
     }
 
     public void setContext(final Map<String, Object> contextMap) {

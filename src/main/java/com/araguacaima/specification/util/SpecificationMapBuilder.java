@@ -18,28 +18,23 @@
  */
 package com.araguacaima.specification.util;
 
-import com.araguacaima.commons.utils.*;
+import com.araguacaima.commons.utils.MapUtils;
+import com.araguacaima.commons.utils.NotNullOrEmptyStringObjectPredicate;
+import com.araguacaima.commons.utils.NotNullOrEmptyStringPredicate;
+import com.araguacaima.commons.utils.ReflectionUtils;
 import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
-@Service
-public class SpecificationMapBuilder implements ApplicationContextAware {
+public class SpecificationMapBuilder {
 
     private final Map<String, SpecificationMap> instancesMap = new HashMap<>();
-    private ApplicationContext applicationContext;
     private MapUtils mapUtils;
-    private ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private String propertiesFile = "specification.properties";
 
-    @Autowired
     public SpecificationMapBuilder(MapUtils mapUtils) {
         this.mapUtils = mapUtils;
     }
@@ -74,18 +69,10 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
                                            boolean replace,
                                            ClassLoader classLoader) {
         SpecificationMap instance;
-        if (applicationContext != null) {
-            instance = applicationContext.getBean(SpecificationMap.class);
-        } else {
-            NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
-            NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
-            instance = new SpecificationMap(notNullOrEmptyStringObjectPredicate,
-                    MapUtils.getInstance(),
-                    new LogicalEvaluator(
-                            new StringUtils(
-                                    notNullOrEmptyStringPredicate,
-                                    new ExceptionUtils())));
-        }
+
+        NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
+        NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
+        instance = new SpecificationMap(new LogicalEvaluator());
 
         if (instancesMap.get(clazz.getName()) == null) {
             instance.setClassName(clazz.getName());
@@ -139,10 +126,6 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
                                                   boolean replace,
                                                   ClassLoader classLoader) {
         List<SpecificationMap> instances = new ArrayList<>();
-
-        if (applicationContext != null) {
-            instances.add(applicationContext.getBean(SpecificationMap.class));
-        }
         instances.addAll(buildInstances(properties, clazz, replace, classLoader, true));
         Collections.sort(instances);
         return instances;
@@ -170,9 +153,4 @@ public class SpecificationMapBuilder implements ApplicationContextAware {
         return instancesMap;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-            throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 }

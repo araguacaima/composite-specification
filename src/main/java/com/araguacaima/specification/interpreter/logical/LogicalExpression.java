@@ -56,7 +56,6 @@ public abstract class LogicalExpression implements Expression {
 
     /**
      * {@inheritDoc}
-     *
      */
     public void setEvaluateAllTerms(boolean evaluateAllTerms) {
         this.evaluateAllTerms = evaluateAllTerms;

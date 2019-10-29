@@ -40,9 +40,8 @@ public class SubtractExpression extends NonTerminalArithmeticExpression {
             double result2 = (Double) getRightNode().evaluate(c).getValue();
             return new ArithmeticExpressionImpl(result1 - result2);
         } else {
-            return new ArithmeticExpressionImpl((Double) getLeftNode().evaluate(c).getValue() - (Double) getRightNode
-                    ().evaluate(
-                    c).getValue());
+            return new ArithmeticExpressionImpl(Double.parseDouble(String.valueOf(getLeftNode().evaluate(c).getValue()))
+                    - Double.parseDouble(String.valueOf(getRightNode().evaluate(c).getValue())));
         }
     }
 

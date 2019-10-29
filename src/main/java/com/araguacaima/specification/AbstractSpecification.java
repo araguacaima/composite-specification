@@ -76,8 +76,8 @@ public abstract class AbstractSpecification implements Specification {
             } else if (node instanceof NotSpecification) {
                 result = " " + LogicalEvaluator.NOT + " " + LogicalEvaluator.STARTING_PARENTHESIS +
                         getExpressionStringFromSpecification(
-                        node.getLeftNode(),
-                        result) + LogicalEvaluator.CLOSING_PARENTHESIS;
+                                node.getLeftNode(),
+                                result) + LogicalEvaluator.CLOSING_PARENTHESIS;
             } else if (node instanceof OrSpecification) {
                 result = LogicalEvaluator.STARTING_PARENTHESIS + (getExpressionStringFromSpecification(node
                                 .getLeftNode(),
@@ -113,7 +113,6 @@ public abstract class AbstractSpecification implements Specification {
 
     /**
      * {@inheritDoc}
-     *
      */
     public abstract boolean isSatisfiedBy(Object object, Map<Object, Object> map)
             throws Exception;

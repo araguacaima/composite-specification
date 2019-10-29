@@ -22,12 +22,10 @@ package com.araguacaima.specification.interpreter.arithmetic;
 import com.araguacaima.specification.Specification;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.exception.ContextException;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 public class ArithmeticContext implements Context {
     private final HashMap varList = new HashMap();
     private Specification specification;

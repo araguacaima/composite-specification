@@ -73,7 +73,6 @@ public class AndSpecification extends AbstractSpecification {
 
     /**
      * {@inheritDoc}
-     *
      */
     public boolean isSatisfiedBy(Object object, final Map<Object, Object> map)
             throws Exception {

@@ -22,12 +22,10 @@ package com.araguacaima.specification.interpreter.logical;
 import com.araguacaima.specification.Specification;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.exception.ContextException;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 public class LogicalContext implements Context {
     private final HashMap<String, Object> varList = new HashMap<>();
     private Specification specification;

@@ -30,12 +30,9 @@ import com.araguacaima.specification.interpreter.exception.InvalidExpressionExce
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.TransformerUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component
 public class ArithmeticEvaluator implements Evaluator {
 
     private static final Character ADD = '+';
@@ -61,7 +58,6 @@ public class ArithmeticEvaluator implements Evaluator {
     private StringUtils stringUtils;
     private int order = 0;
 
-    @Autowired
     public ArithmeticEvaluator(StringUtils stringUtils) {
         this(false);
         this.stringUtils = stringUtils;
@@ -76,6 +72,10 @@ public class ArithmeticEvaluator implements Evaluator {
         return operators;
     }
 
+    private static HashSet<Character> getOperators() {
+        return new HashSet<>(operators.keySet());
+    }
+
     public void addToContext(String key, String value) {
         ((ArithmeticContext) ctx).assign(key, Double.valueOf(value));
     }
@@ -84,10 +84,6 @@ public class ArithmeticEvaluator implements Evaluator {
             throws ExpressionException, ContextException {
         setContext(c);
         return evaluate();
-    }
-
-    public void setContext(Context c) {
-        ctx = c;
     }
 
     private double evaluate()
@@ -210,10 +206,6 @@ public class ArithmeticEvaluator implements Evaluator {
         return s.size() == 0 ? null : s.pop();
     }
 
-    private static HashSet<Character> getOperators() {
-        return new HashSet<>(operators.keySet());
-    }
-
     public boolean isOperator(String str) {
         String incoming = str.trim();
         return operators.containsKey(incoming.charAt(0));
@@ -239,6 +231,10 @@ public class ArithmeticEvaluator implements Evaluator {
         return ctx;
     }
 
+    public void setContext(Context c) {
+        ctx = c;
+    }
+
     public void setContext(final Map<String, Object> contextMap) {
         final ArithmeticContext c = new ArithmeticContext();
         if (contextMap != null) {
@@ -256,13 +252,13 @@ public class ArithmeticEvaluator implements Evaluator {
     }
 
     @Override
-    public void setOrder(int order) {
-        this.order = order;
+    public int getOrder() {
+        return this.order;
     }
 
     @Override
-    public int getOrder() {
-        return this.order;
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     public String getExpression() {

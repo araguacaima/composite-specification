@@ -49,7 +49,6 @@ public abstract class ArithmeticExpression implements Expression {
 
     /**
      * {@inheritDoc}
-     *
      */
 
     public boolean getEvaluateAllTerms() {

@@ -58,7 +58,6 @@ public abstract class LogicalArithmeticExpression implements Expression {
 
     /**
      * {@inheritDoc}
-     *
      */
 
     public boolean getEvaluateAllTerms() {
@@ -67,7 +66,6 @@ public abstract class LogicalArithmeticExpression implements Expression {
 
     /**
      * {@inheritDoc}
-     *
      */
     public void setEvaluateAllTerms(boolean evaluateAllTerms) {
         this.evaluateAllTerms = evaluateAllTerms;

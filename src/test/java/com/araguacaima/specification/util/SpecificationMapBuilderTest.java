@@ -1,15 +1,10 @@
 package com.araguacaima.specification.util;
 
 import com.araguacaima.specification.Specification;
-import com.araguacaima.specification.SpecificationSpringConfig;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +12,9 @@ import java.util.Map;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {SpecificationSpringConfig.class})
 public class SpecificationMapBuilderTest {
     private static Logger log = LoggerFactory.getLogger(SpecificationMapBuilder.class);
     private SpecificationMap specificationMap;
-    @Autowired
     private SpecificationMapBuilder specificationMapBuilder;
 
     @Before

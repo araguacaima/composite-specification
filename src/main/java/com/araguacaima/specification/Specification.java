@@ -26,6 +26,7 @@ import java.util.Map;
  * Specification interface.
  * Use {@link AbstractSpecification} as base for creating specifications, and
  * only the method {@link #isSatisfiedBy(Object, java.util.Map)} must be implemented.
+ *
  * @author [Creator] Alejandro Manuel Méndez Argauacaima &lt;araguacaima@gmail.com&gt; AMMA
  * <ul>
  * <li>[2017/09/01] AMMA: Class creation

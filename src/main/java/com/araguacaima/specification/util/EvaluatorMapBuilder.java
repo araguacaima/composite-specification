@@ -31,17 +31,12 @@ import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithm
 import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticEvaluator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
-@Service
-public class EvaluatorMapBuilder implements ApplicationContextAware {
+
+public class EvaluatorMapBuilder {
 
     final String propertiesFile = "evaluator.properties";
     private ArithmeticEvaluator arithmeticEvaluator;
@@ -50,9 +45,7 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
     private Map<String, Evaluator> logicalEvaluatorMap = new HashMap<>();
     private MapUtils mapUtils;
     private Properties properties = new Properties();
-    private ApplicationContext applicationContext;
 
-    @Autowired
     private EvaluatorMapBuilder(ArithmeticEvaluator arithmeticEvaluator,
                                 LogicalArithmeticEvaluator logicalArithmeticEvaluator,
                                 LogicalEvaluator logicalEvaluator) {
@@ -132,6 +125,10 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
         return logicalEvaluatorMap;
     }
 
+    public void setLogicalEvaluatorMap(Map map) {
+        logicalEvaluatorMap = map;
+    }
+
     private void fillLogicalEvaluatorMap(final Properties properties, final boolean evaluateAllTerms) {
         IterableUtils.forEach(properties.keySet(), o -> {
             String key = (String) o;
@@ -140,10 +137,6 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
             } catch (Exception ignored) {
             }
         });
-    }
-
-    public void setLogicalEvaluatorMap(Map map) {
-        logicalEvaluatorMap = map;
     }
 
     public void addLogicalEvaluator(String label, LogicalEvaluator evaluator) {
@@ -266,11 +259,5 @@ public class EvaluatorMapBuilder implements ApplicationContextAware {
 
         CollectionUtils.predicatedCollection(tokens, o -> o instanceof Evaluator);
         return tokens;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-            throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }
