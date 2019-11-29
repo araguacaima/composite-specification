@@ -35,7 +35,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.TransformerUtils;
 
-
 import java.util.*;
 
 public class LogicalArithmeticEvaluator implements Evaluator {

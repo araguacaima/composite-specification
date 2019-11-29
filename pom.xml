@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>composite-specification</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <url>http://maven.apache.org</url>
@@ -51,7 +51,7 @@
         <commons-io-commons-io>2.6</commons-io-commons-io>
         <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
         <aspectj.version>1.8.4</aspectj.version>
-        <com.araguacaima-commons-utils>1.1</com.araguacaima-commons-utils>
+        <com.araguacaima-commons-utils>1.5.4</com.araguacaima-commons-utils>
         <org.apache.commons-commons-collections4>4.4</org.apache.commons-commons-collections4>
 
         <!-- Generic properties -->

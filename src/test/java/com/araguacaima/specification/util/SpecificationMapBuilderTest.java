@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class SpecificationMapBuilderTest {
     private static Logger log = LoggerFactory.getLogger(SpecificationMapBuilder.class);
     private SpecificationMap specificationMap;
-    private SpecificationMapBuilder specificationMapBuilder;
+    private SpecificationMapBuilder specificationMapBuilder = new SpecificationMapBuilder();
 
     @Before
     public void setUp() {

@@ -31,12 +31,12 @@ import java.util.*;
 public class SpecificationMapBuilder {
 
     private final Map<String, SpecificationMap> instancesMap = new HashMap<>();
-    private MapUtils mapUtils;
+    private MapUtils mapUtils = MapUtils.getInstance();
     private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private String propertiesFile = "specification.properties";
 
-    public SpecificationMapBuilder(MapUtils mapUtils) {
-        this.mapUtils = mapUtils;
+    public SpecificationMapBuilder() {
+
     }
 
     public SpecificationMap getInstance(Class clazz)
