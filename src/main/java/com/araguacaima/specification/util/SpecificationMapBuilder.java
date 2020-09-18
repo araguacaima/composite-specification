@@ -60,6 +60,11 @@ public class SpecificationMapBuilder {
         return buildInstance(mapUtils.toProperties(map), clazz, false, clazz.getClassLoader());
     }
 
+    public SpecificationMap getInstance(Map<String, String> map, Class clazz, ClassLoader classLoader) {
+        return buildInstance(mapUtils.toProperties(map), clazz, false, classLoader);
+    }
+
+
     public SpecificationMap getInstance(Map<String, String> map, Class clazz, boolean replace) {
         return buildInstance(mapUtils.toProperties(map), clazz, replace, clazz.getClassLoader());
     }

@@ -19,44 +19,39 @@
 
 package com.araguacaima.specification.util;
 
-import com.araguacaima.commons.utils.MapUtils;
 import com.araguacaima.specification.interpreter.Evaluator;
-import com.araguacaima.specification.interpreter.arithmetic.ArithmeticContext;
 import com.araguacaima.specification.interpreter.arithmetic.ArithmeticEvaluator;
-import com.araguacaima.specification.interpreter.exception.EvaluatorException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
-import com.araguacaima.specification.interpreter.logical.LogicalContext;
 import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
-import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticContext;
 import com.araguacaima.specification.interpreter.logicalArithmetic.LogicalArithmeticEvaluator;
+import com.araguacaima.specification.interpreter.mathFunctions.MathFunctionEvaluator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 @SuppressWarnings("WeakerAccess")
 
 public class EvaluatorMapBuilder {
 
-    final String propertiesFile = "evaluator.properties";
-    private ArithmeticEvaluator arithmeticEvaluator;
-    private LogicalArithmeticEvaluator logicalArithmeticEvaluator;
-    private LogicalEvaluator logicalEvaluator;
+    private final String propertiesFile = "evaluator.properties";
+
     private Map<String, Evaluator> logicalEvaluatorMap = new HashMap<>();
-    private MapUtils mapUtils;
     private Properties properties = new Properties();
 
-    private EvaluatorMapBuilder(ArithmeticEvaluator arithmeticEvaluator,
-                                LogicalArithmeticEvaluator logicalArithmeticEvaluator,
-                                LogicalEvaluator logicalEvaluator) {
-        this.arithmeticEvaluator = arithmeticEvaluator;
-        this.logicalArithmeticEvaluator = logicalArithmeticEvaluator;
-        this.logicalEvaluator = logicalEvaluator;
+    public EvaluatorMapBuilder() throws IOException {
+        ClassLoader classLoader = EvaluatorMapBuilder.class.getClassLoader();
+        properties.load(classLoader.getResourceAsStream(propertiesFile));
+        buildEvaluatorMap(properties);
     }
 
-    private EvaluatorMapBuilder(Properties prop) {
-        if (prop != null) {
-            properties.putAll(prop);
+    public EvaluatorMapBuilder(Map map) {
+        if (map != null) {
+            properties.putAll(map);
         }
         buildEvaluatorMap(properties);
     }
@@ -85,7 +80,7 @@ public class EvaluatorMapBuilder {
         return getLogicalEvaluatorMap();
     }
 
-    private Evaluator getEvaluator(String key) {
+    public Evaluator getEvaluator(String key) {
         return logicalEvaluatorMap.get(key);
     }
 
@@ -95,30 +90,36 @@ public class EvaluatorMapBuilder {
 
     private Evaluator buildExpression(String expression, boolean evaluateAllTerms)
             throws ExpressionException {
+        Evaluator evaluator = null;
         try {
-            logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
-            logicalEvaluator.setExpression(expression);
-            logicalEvaluator.buildExpressionTree();
-            return logicalEvaluator;
+            evaluator = new MathFunctionEvaluator();
+            evaluator.setEvaluateAllTerms(evaluateAllTerms);
+            evaluator.setExpressionString(expression);
         } catch (Throwable ignored) {
         }
         try {
-            arithmeticEvaluator.setEvaluateAllTerms(evaluateAllTerms);
-            arithmeticEvaluator.setExpression(expression);
-            arithmeticEvaluator.buildExpressionTree();
-            return arithmeticEvaluator;
+            evaluator = new ArithmeticEvaluator();
+            evaluator.setEvaluateAllTerms(evaluateAllTerms);
+            evaluator.setExpressionString(expression);
         } catch (Throwable ignored) {
         }
         try {
-            logicalArithmeticEvaluator.setEvaluateAllTerms(evaluateAllTerms);
-            logicalArithmeticEvaluator.setExpression(expression);
-            logicalArithmeticEvaluator.buildExpressionTree();
-            return logicalArithmeticEvaluator;
+            evaluator = new LogicalArithmeticEvaluator(new LogicalEvaluator());
+            evaluator.setEvaluateAllTerms(evaluateAllTerms);
+            evaluator.setExpressionString(expression);
         } catch (Throwable ignored) {
         }
-
-        throw new ExpressionException("Expression '" + expression + "' is not a valid Logical, Arithmetic or " +
-                "Logical/Arithmetic expression");
+        try {
+            evaluator = new LogicalEvaluator();
+            evaluator.setEvaluateAllTerms(evaluateAllTerms);
+            evaluator.setExpressionString(expression);
+        } catch (Throwable ignored) {
+        }
+        if (evaluator == null) {
+            throw new ExpressionException("Expression '" + expression + "' is not a valid Logical, Arithmetic, " +
+                    "Logical/Arithmetic or Math function expression");
+        }
+        return evaluator;
     }
 
     private Map getLogicalEvaluatorMap() {
@@ -151,88 +152,6 @@ public class EvaluatorMapBuilder {
         properties.put(label, prop);
     }
 
-    public ArithmeticEvaluator getArithmeticEvaluator(String arithmeticEvaluatorKey, final Map context)
-            throws EvaluatorException {
-        try {
-            ArithmeticEvaluator arithmeticEvaluator = (ArithmeticEvaluator) getEvaluator(arithmeticEvaluatorKey);
-            if (arithmeticEvaluator == null) {
-                return this.arithmeticEvaluator;
-            }
-            final ArithmeticContext arithmeticContext = new ArithmeticContext();
-
-            IterableUtils.forEach(context.keySet(), o -> {
-                String key = (String) o;
-                arithmeticContext.assign(key, Double.valueOf(context.get(key).toString()));
-            });
-
-            arithmeticEvaluator.setContext(arithmeticContext);
-            return arithmeticEvaluator;
-        } catch (Throwable t) {
-            throw new EvaluatorException("There is no a valid LogicalArithmetic evaluator mapped with key '" +
-                    arithmeticEvaluatorKey + "'");
-        }
-    }
-
-    public EvaluatorMapBuilder getInstance(Map properties) {
-        addProperties(mapUtils.toProperties(properties));
-        buildEvaluatorMap(properties);
-        return this;
-    }
-
-    private void addProperties(Properties prop) {
-        properties.putAll(prop);
-    }
-
-    private Map buildEvaluatorMap(Map<String, String> map) {
-        return buildInstance(mapUtils.toProperties(map), null, false);
-    }
-
-    public LogicalArithmeticEvaluator getLogicalArithmeticEvaluator(String logicalArithmeticEvaluatorKey,
-                                                                    final Map context)
-            throws EvaluatorException {
-        try {
-            LogicalArithmeticEvaluator logicalArithmeticEvaluator = (LogicalArithmeticEvaluator) getEvaluator(
-                    logicalArithmeticEvaluatorKey);
-            if (logicalArithmeticEvaluator == null) {
-                return this.logicalArithmeticEvaluator;
-            }
-            final LogicalArithmeticContext logicalArithmeticContext = new LogicalArithmeticContext();
-
-            IterableUtils.forEach(context.keySet(), o -> {
-                String key = (String) o;
-                logicalArithmeticContext.assign(key, Double.valueOf(context.get(key).toString()));
-            });
-
-            logicalArithmeticEvaluator.setContext(logicalArithmeticContext);
-            return logicalArithmeticEvaluator;
-        } catch (Throwable t) {
-            throw new EvaluatorException("There is no a valid LogicalArithmetic evaluator mapped with key '" +
-                    logicalArithmeticEvaluatorKey + "'");
-        }
-    }
-
-    public LogicalEvaluator getLogicalEvaluator(String logicalEvaluatorKey, final Map context)
-            throws EvaluatorException {
-        try {
-            LogicalEvaluator logicalEvaluator = (LogicalEvaluator) getEvaluator(logicalEvaluatorKey);
-            if (logicalEvaluator == null) {
-                return this.logicalEvaluator;
-            }
-            final LogicalContext logicalContext = new LogicalContext();
-
-            IterableUtils.forEach(context.keySet(), o -> {
-                String key = (String) o;
-                logicalContext.assign(key, Boolean.valueOf(context.get(key).toString()));
-            });
-
-            logicalEvaluator.setContext(logicalContext);
-            return logicalEvaluator;
-        } catch (Throwable t) {
-            throw new EvaluatorException("There is no a valid LogicalArithmetic evaluator mapped with key '" +
-                    logicalEvaluatorKey + "'");
-        }
-    }
-
     public Properties getProperties() {
         return properties;
     }
@@ -248,15 +167,7 @@ public class EvaluatorMapBuilder {
     private Collection getTermsByLabel(String methodName, boolean evaluateAllTerms) {
         LogicalEvaluator logicalEvaluator = (LogicalEvaluator) logicalEvaluatorMap.get(methodName);
         logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
-        Collection tokens = new ArrayList();
-
-        try {
-            tokens = logicalEvaluator.getTokens();
-        } catch (ExpressionException e) {
-            e.printStackTrace();
-            return tokens;
-        }
-
+        Collection tokens = logicalEvaluator.getTokens();
         CollectionUtils.predicatedCollection(tokens, o -> o instanceof Evaluator);
         return tokens;
     }

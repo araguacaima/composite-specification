@@ -65,9 +65,9 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
             throws ExpressionException {
         Specification result = new AbstractSpecificationImpl(evaluateAllTerms);
         logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
-        logicalEvaluator.setExpression(expression);
+        logicalEvaluator.setExpressionString(expression);
         logicalEvaluator.setOrder(order);
-        return buildSpecificationFromExpression(logicalEvaluator.buildExpressionTree(), result, classLoader);
+        return buildSpecificationFromExpression(logicalEvaluator.getExpression(), result, classLoader);
     }
 
     private LogicalEvaluator getLogicalEvaluator() {
@@ -229,24 +229,16 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
         return specificationMap;
     }
 
-    public Collection getTermsByMethod(String methodName) {
+    public Collection getTermsByMethod(String methodName) throws ExpressionException {
         return getTermsByMethod(methodName, false);
     }
 
     @SuppressWarnings("SameParameterValue")
-    private Collection getTermsByMethod(String methodName, boolean evaluateAllTerms) {
+    private Collection getTermsByMethod(String methodName, boolean evaluateAllTerms) throws ExpressionException {
         String expression = (String) properties.get(className + "." + methodName);
         logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
-        logicalEvaluator.setExpression(expression);
-        Collection<Expression> tokens = new ArrayList<>();
-
-        try {
-            tokens = logicalEvaluator.getTokens();
-        } catch (ExpressionException e) {
-            e.printStackTrace();
-            return tokens;
-        }
-
+        logicalEvaluator.setExpressionString(expression);
+        Collection<Expression> tokens = logicalEvaluator.getTokens();
         CollectionUtils.transform(tokens, o -> {
             String tokenClassName = o.toString();
             try {

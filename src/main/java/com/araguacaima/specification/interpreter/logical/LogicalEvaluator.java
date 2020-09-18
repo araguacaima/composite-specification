@@ -26,7 +26,6 @@ import com.araguacaima.specification.interpreter.Expression;
 import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
-import com.araguacaima.specification.interpreter.exception.InvalidExpressionException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.TransformerUtils;
@@ -56,9 +55,10 @@ public class LogicalEvaluator implements Evaluator {
 
     private Context ctx;
     private boolean evaluateAllTerms;
-    private String expression;
+    private String expressionString;
     private StringUtils stringUtils = StringUtils.getInstance();
     private int order = 0;
+    private Expression expression;
 
     public LogicalEvaluator() {
         this.evaluateAllTerms = false;
@@ -76,29 +76,19 @@ public class LogicalEvaluator implements Evaluator {
         ((LogicalContext) ctx).assign(key, Boolean.valueOf(value));
     }
 
-    public boolean evaluate(Context c)
-            throws ExpressionException, ContextException {
+    @Override
+    public Boolean evaluate(Context c) throws ExpressionException, ContextException {
         setContext(c);
         return evaluate();
     }
 
-    private boolean evaluate()
-            throws ExpressionException, ContextException {
-        //build the Binary Tree
-        Expression rootNode = buildExpressionTree();
-
-        if (rootNode != null && rootNode instanceof LogicalExpression) {
-            //Evaluate the tree
-            return (Boolean) (rootNode.evaluate(ctx)).getValue();
-
-        } else {
-            throw new InvalidExpressionException();
-        }
+    private boolean evaluate() throws ExpressionException, ContextException {
+        return (Boolean) (expression.evaluate(ctx)).getValue();
     }
 
-    public Expression buildExpressionTree()
+    private Expression buildExpressionTree()
             throws ExpressionException {
-        String pfExpr = infixToPostFix(expression);
+        String pfExpr = infixToPostFix(expressionString);
         return buildTree(pfExpr);
     }
 
@@ -174,15 +164,13 @@ public class LogicalEvaluator implements Evaluator {
         return pfExpr.toString();
     }
 
-    public Expression buildTree(String expr)
-            throws ExpressionException {
+    public Expression buildTree(String expr) throws ExpressionException {
         Stack<Expression> s = new Stack<>();
         Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
+        Collection tokens = stringUtils.splitBySeparators(expressionString, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
-
             if (isNot(currChar)) {
                 Expression r = s.pop();
                 Expression n = getNonTerminalExpression(currChar, null, r);
@@ -215,8 +203,9 @@ public class LogicalEvaluator implements Evaluator {
                 s.push(n);
                 expr = expr.substring(1).trim();
             }
-        }//for
-        return s.size() == 0 ? null : s.pop();
+        }
+        expression = s.size() == 0 ? null : s.pop();
+        return expression;
     }
 
     public boolean isOperator(String str) {
@@ -284,17 +273,45 @@ public class LogicalEvaluator implements Evaluator {
         ctx = c;
     }
 
-    public String getExpression() {
+    public String getExpressionString() {
+        return expressionString;
+    }
+
+    @Override
+    public void setExpressionString(String expr) throws ExpressionException {
+        //String regex = ".*[" + getFullOperationsRegex() + "].*";
+        if (expr == null || !containsAnyOperator(expr, getOperations())) {
+            throw new IllegalArgumentException("Incoming expression of '" + expr + "' is not parsable as a Logical type");
+        }
+        expressionString = expr;
+        buildExpressionTree();
+    }
+
+    protected List<Character> getOperations() {
+        return Arrays.asList(AND, EQ, LE, NOT, OR);
+    }
+
+    private boolean containsAnyOperator(String expression, List<Character> list) {
+        for (Character operator : list) {
+            if (expression.contains(String.valueOf(operator))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getOperationsRegex() {
+        final StringBuilder result = new StringBuilder();
+        IterableUtils.forEach(Arrays.asList(AND, "\\", "\\", OR, NOT, LE, EQ), result::append);
+        return result.toString();
+    }
+
+    public Collection<Expression> getTokens() {
+        return expression == null ? new ArrayList<>() : expression.getTerms();
+    }
+
+    @Override
+    public Expression getExpression() {
         return expression;
     }
-
-    public void setExpression(String expr) {
-        expression = expr;
-    }
-
-    public Collection<Expression> getTokens()
-            throws ExpressionException {
-        Expression exp = buildExpressionTree();
-        return exp == null ? new ArrayList<>() : exp.getTerms();
-    }
-} // End of class
+}

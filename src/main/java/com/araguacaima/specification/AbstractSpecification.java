@@ -141,6 +141,7 @@ public abstract class AbstractSpecification implements Specification {
     /**
      * {@inheritDoc}
      */
+
     public String toString() {
         return getExpressionStringFromSpecification(this, StringUtils.EMPTY);
     }

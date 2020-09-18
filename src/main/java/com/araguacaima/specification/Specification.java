@@ -34,6 +34,8 @@ import java.util.Map;
  */
 public interface Specification {
 
+    String SPECIFICATION_ARITHMETIC_OPERATION_RESULT = "SpecificationArithmeticOperationResult";
+
     /**
      * Create a new specification that is the AND operation of {@code this} specification and another specification.
      *
