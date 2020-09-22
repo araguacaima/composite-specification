@@ -280,9 +280,9 @@ public class LogicalEvaluator implements Evaluator {
     @Override
     public void setExpressionString(String expr) throws ExpressionException {
         //String regex = ".*[" + getFullOperationsRegex() + "].*";
-        if (expr == null || !containsAnyOperator(expr, getOperations())) {
+        /*if (expr == null || !containsAnyOperator(expr, getOperations())) {
             throw new IllegalArgumentException("Incoming expression of '" + expr + "' is not parsable as a Logical type");
-        }
+        }*/
         expressionString = expr;
         buildExpressionTree();
     }
