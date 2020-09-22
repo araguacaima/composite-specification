@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,20 +16,19 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 public class EvaluatorMapBuilderTest {
-    private static Logger log = LoggerFactory.getLogger(SpecificationMapBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(SpecificationMapBuilder.class);
     private Evaluator evaluator;
 
     @Before
-    public void setUp() throws IOException {
-        Map<String, String> map = new HashMap<>();
+    public void setUp() {
+        Map<Object, Object> map = new HashMap<>();
         map.put("test1", "¡(a,b,c)-!(d,e)");
         EvaluatorMapBuilder specificationMapBuilder = new EvaluatorMapBuilder(map);
         evaluator = specificationMapBuilder.getEvaluator("test1");
     }
 
     @Test
-    public void testGetSpecificationFromMethod()
-            throws Exception {
+    public void testGetSpecificationFromMethod() throws Exception {
         Context context = new MathFunctionContext();
         context.assignParameterObject("a", 24.5);
         context.assignParameterObject("b", 12);

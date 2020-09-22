@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "FieldCanBeLocal"})
 
 public class EvaluatorMapBuilder {
 
@@ -49,22 +49,22 @@ public class EvaluatorMapBuilder {
         buildEvaluatorMap(properties);
     }
 
-    public EvaluatorMapBuilder(Map map) {
+    public EvaluatorMapBuilder(Map<Object, Object> map) {
         if (map != null) {
             properties.putAll(map);
         }
         buildEvaluatorMap(properties);
     }
 
-    private Map buildEvaluatorMap(Properties prop) {
+    private Map<String, Evaluator> buildEvaluatorMap(Properties prop) {
         return buildInstance(prop, null, false);
     }
 
-    private Map buildInstance(Properties properties, String label, boolean replace) {
+    private Map<String, Evaluator> buildInstance(Properties properties, String label, boolean replace) {
         return buildInstance(properties, label, replace, false);
     }
 
-    private Map buildInstance(Properties properties, String label, boolean replace, final boolean evaluateAllTerms) {
+    private Map<String, Evaluator> buildInstance(Properties properties, String label, boolean replace, final boolean evaluateAllTerms) {
         if (getEvaluator(label) == null) {
             fillLogicalEvaluatorMap(properties);
         } else {
@@ -104,7 +104,7 @@ public class EvaluatorMapBuilder {
         } catch (Throwable ignored) {
         }
         try {
-            evaluator = new LogicalArithmeticEvaluator(new LogicalEvaluator());
+            evaluator = new LogicalArithmeticEvaluator<>(new LogicalEvaluator());
             evaluator.setEvaluateAllTerms(evaluateAllTerms);
             evaluator.setExpressionString(expression);
         } catch (Throwable ignored) {
@@ -122,11 +122,11 @@ public class EvaluatorMapBuilder {
         return evaluator;
     }
 
-    private Map getLogicalEvaluatorMap() {
+    private Map<String, Evaluator> getLogicalEvaluatorMap() {
         return logicalEvaluatorMap;
     }
 
-    public void setLogicalEvaluatorMap(Map map) {
+    public void setLogicalEvaluatorMap(Map<String, Evaluator> map) {
         logicalEvaluatorMap = map;
     }
 
@@ -160,14 +160,14 @@ public class EvaluatorMapBuilder {
         properties = prop;
     }
 
-    public Collection getTermsByLabel(String methodName) {
+    public Collection<?> getTermsByLabel(String methodName) {
         return getTermsByLabel(methodName, false);
     }
 
-    private Collection getTermsByLabel(String methodName, boolean evaluateAllTerms) {
+    private Collection<?> getTermsByLabel(String methodName, boolean evaluateAllTerms) {
         LogicalEvaluator logicalEvaluator = (LogicalEvaluator) logicalEvaluatorMap.get(methodName);
         logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
-        Collection tokens = logicalEvaluator.getTokens();
+        Collection<?> tokens = logicalEvaluator.getTokens();
         CollectionUtils.predicatedCollection(tokens, o -> o instanceof Evaluator);
         return tokens;
     }

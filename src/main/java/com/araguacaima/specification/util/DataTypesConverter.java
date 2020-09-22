@@ -1,3 +1,22 @@
+/*
+ * Copyright 2020 araguacaima
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.araguacaima.specification.util;
 
 import org.joda.time.DateTime;
@@ -7,13 +26,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Alejandro on 05/03/2015.
- */
 public class DataTypesConverter {
 
-    public static final Map<Class, DataTypeView> DATA_TYPES_CONVERTER = new HashMap<Class, DataTypeView>();
-    private static final Map<String, Class> PRIMITIVE_CLASS_MAP = new HashMap<String, Class>();
+    public static final Map<Class<?>, DataTypeView> DATA_TYPES_CONVERTER = new HashMap<>();
+    private static final Map<String, Class<?>> PRIMITIVE_CLASS_MAP = new HashMap<>();
 
     static {
         DATA_TYPES_CONVERTER.put(Integer.TYPE, new DataTypeView("integer", "int32", "Integer", false));
@@ -75,7 +91,7 @@ public class DataTypesConverter {
         if (type.equalsIgnoreCase("Period")) {
             return new DataTypeView("period", null, "Period", false);
         }
-        Class clazz = PRIMITIVE_CLASS_MAP.get(type.toLowerCase());
+        Class<?> clazz = PRIMITIVE_CLASS_MAP.get(type.toLowerCase());
         if (clazz != null) {
             return DATA_TYPES_CONVERTER.get(clazz);
         } else {

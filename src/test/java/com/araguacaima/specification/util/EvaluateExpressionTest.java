@@ -11,6 +11,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class EvaluateExpressionTest {
+
     private static final Logger log = LoggerFactory.getLogger(EvaluateExpressionTest.class);
 
     @Before
