@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>composite-specification</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <url>http://maven.apache.org</url>
@@ -27,11 +27,10 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/araguacaima/composite-specification.git</connection>
-        <url>scm:git:https://github.com/araguacaima/composite-specification.git</url>
-        <developerConnection>scm:git:https://github.com/araguacaima/composite-specification/tree/master</developerConnection>
-    <tag>composite-specification-1.3.0</tag>
-  </scm>
+        <connection>scm:git:https://github.com/araguacaima/composite-specification</connection>
+        <developerConnection>scm:git:https://github.com/araguacaima/composite-specification</developerConnection>
+        <url>scm:git:https://github.com/araguacaima/composite-specification</url>
+    </scm>
 
     <distributionManagement>
         <snapshotRepository>
