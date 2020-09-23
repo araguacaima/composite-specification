@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,7 +19,6 @@
 
 package com.araguacaima.specification;
 
-import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 
 import java.util.ArrayList;
@@ -141,8 +140,9 @@ public abstract class AbstractSpecification implements Specification {
     /**
      * {@inheritDoc}
      */
+
     public String toString() {
-        return getExpressionStringFromSpecification(this, StringUtils.EMPTY);
+        return getExpressionStringFromSpecification(this, "");
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * AND specification, used to create a new specifcation that is the AND of two other specifications.
+ * AND specification, used to create a new specification that is the AND of two other specifications.
  */
 @SuppressWarnings("WeakerAccess")
 public class AndSpecification extends AbstractSpecification {

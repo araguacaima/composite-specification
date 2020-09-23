@@ -13,55 +13,88 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.*;
 
 public class SpecificationMapBuilderTest {
-    private static Logger log = LoggerFactory.getLogger(SpecificationMapBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(SpecificationMapBuilder.class);
+    private final SpecificationMapBuilder specificationMapBuilder = new SpecificationMapBuilder();
     private SpecificationMap specificationMap;
-    private SpecificationMapBuilder specificationMapBuilder = new SpecificationMapBuilder();
 
     @Before
     public void setUp() {
         Map<String, String> map = new HashMap<>();
-        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.execute_1",
+        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.test1_1",
                 "com.araguacaima.specification.AlwaysTrueSpec & com.araguacaima.specification.AlwaysFalseSpec");
-        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.tal_0|3",
+        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.test2_0",
                 "com.araguacaima.specification.AlwaysTrueSpec");
-        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.tal2", null);
+        map.put("com.araguacaima.specification.util.SpecificationMapBuilderTest.test3",
+                "(com.araguacaima.specification.AlwaysTrueSpec | com.araguacaima.specification.AlwaysFalseSpec) & com.araguacaima.specification.AlwaysTrueWhenOddNumberSpec");
+
         specificationMap = specificationMapBuilder.getInstance(map, SpecificationMapBuilderTest.class);
     }
 
     @Test
-    public void testGetSpecificationFromMethod()
+    public void testAlwaysResolveFalse()
             throws Exception {
-        Specification specification = specificationMap.getSpecificationFromMethod("execute");
-        log.info("specifications: " + specification);
+        log.info("\n------------------------\nTesting testAlwaysResolveFalse\n------------------------");
+        Specification specification = specificationMap.getSpecificationFromMethod("test1");
         assertNotNull(specification);
+        log.info("specifications: " + specification);
         assertEquals(specification.toString().trim(),
                 "(com.araguacaima.specification.AlwaysTrueSpec & com.araguacaima.specification.AlwaysFalseSpec)");
-        assertFalse(specification.isSatisfiedBy(new Object(), null));
+        boolean result = specification.isSatisfiedBy(null, null);
+        log.info("result: " + result);
+        assertFalse(result);
     }
 
     @Test
-    public void testGetSpecificationFromMethod2()
+    public void testAlwaysResolveTrue()
             throws Exception {
-        Specification specification = specificationMap.getSpecificationFromMethod("tal");
-        log.info("specifications: " + specification);
+        log.info("\n------------------------\nTesting testAlwaysResolveTrue\n------------------------");
+        Specification specification = specificationMap.getSpecificationFromMethod("test2");
         assertNotNull(specification);
-        assertEquals(specification.toString().trim(), "com.araguacaima.specification.AlwaysTrueSpec");
-        assertTrue(specification.isSatisfiedBy(new Object(), null));
-    }
-
-    @Test
-    public void testGetSpecificationFromMethod3()
-            throws Exception {
-        Specification specification = specificationMap.getSpecificationFromMethod("tal2");
         log.info("specifications: " + specification);
-        assertNull(specification);
+        assertEquals(specification.toString().trim(), "com.araguacaima.specification.AlwaysTrueSpec");
+        boolean result = specification.isSatisfiedBy(null, null);
+        log.info("result: " + result);
+        assertTrue(result);
     }
 
     @Test
-    public void testGetSpecificationsMap()
+    public void testResolveTrueIfOdd() throws Exception {
+        log.info("\n------------------------\nTesting testResolveTrueIfOdd with input of 8 as number\n------------------------");
+        Specification specification = specificationMap.getSpecificationFromMethod("test3");
+        assertNotNull(specification);
+        log.info("specifications: " + specification);
+        assertEquals(specification.toString().trim(),
+                "((com.araguacaima.specification.AlwaysTrueSpec | com.araguacaima.specification.AlwaysFalseSpec) & com.araguacaima.specification.AlwaysTrueWhenOddNumberSpec)");
+        boolean result = specification.isSatisfiedBy(8, null);
+        log.info("result: " + result);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testResolveFalseDueIsNotNumber() throws Exception {
+        log.info("\n------------------------\nTesting testResolveFalseDueIsNotNumber with input of 8 as String \n------------------------");
+        Specification specification = specificationMap.getSpecificationFromMethod("test3");
+        assertNotNull(specification);
+        log.info("specifications: " + specification);
+        assertEquals(specification.toString().trim(),
+                "((com.araguacaima.specification.AlwaysTrueSpec | com.araguacaima.specification.AlwaysFalseSpec) & com.araguacaima.specification.AlwaysTrueWhenOddNumberSpec)");
+        boolean result = specification.isSatisfiedBy("8", null);
+        log.info("result: " + result);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testResolveFalseDueIsEven()
             throws Exception {
-        Map specifications = specificationMap.getSpecificationMap();
-        log.info("specifications: " + specifications);
+        log.info("\n------------------------\nTesting testResolveFalseDueIsEven with input of 7 as Number\n------------------------");
+        Specification specification = specificationMap.getSpecificationFromMethod("test3");
+        assertNotNull(specification);
+        log.info("specifications: " + specification);
+        assertEquals(specification.toString().trim(),
+                "((com.araguacaima.specification.AlwaysTrueSpec | com.araguacaima.specification.AlwaysFalseSpec) & com.araguacaima.specification.AlwaysTrueWhenOddNumberSpec)");
+        boolean result = specification.isSatisfiedBy(7, null);
+        log.info("result: " + result);
+        assertFalse(result);
     }
 
 }

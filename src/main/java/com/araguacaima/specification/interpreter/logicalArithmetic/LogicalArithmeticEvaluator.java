@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,8 +19,8 @@
 
 package com.araguacaima.specification.interpreter.logicalArithmetic;
 
-import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.Specification;
+import com.araguacaima.specification.common.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Evaluator;
 import com.araguacaima.specification.interpreter.Expression;
@@ -37,24 +37,24 @@ import org.apache.commons.collections4.TransformerUtils;
 
 import java.util.*;
 
-public class LogicalArithmeticEvaluator implements Evaluator {
+public class LogicalArithmeticEvaluator<T> implements Evaluator {
 
-    private static final Character ADD = '+';
-    private static final Character AND = '&';
-    private static final Character CLOSING_PARENTHESIS = ')';
-    private static final Character DIV = '/';
-    private static final Character EQ = '=';
-    private static final Character GET = ']';
-    private static final Character GT = '>';
-    private static final Character LE = '≡';
-    private static final Character LET = '[';
-    private static final Character LT = '<';
-    private static final Character MUL = '*';
-    private static final Character NOT = '¬';
-    private static final Character OR = '|';
-    private static final Character STARTING_PARENTHESIS = '(';
-    private static final Character SUB = '-';
-    private static final HashMap<Character, Object> operators = new HashMap<>();
+    protected static final Character ADD = '+';
+    protected static final Character AND = '&';
+    protected static final Character CLOSING_PARENTHESIS = ')';
+    protected static final Character DIV = '/';
+    protected static final Character EQ = '=';
+    protected static final Character GET = ']';
+    protected static final Character GT = '>';
+    protected static final Character LE = '≡';
+    protected static final Character LET = '[';
+    protected static final Character LT = '<';
+    protected static final Character MUL = '*';
+    protected static final Character NOT = '¬';
+    protected static final Character OR = '|';
+    protected static final Character STARTING_PARENTHESIS = '(';
+    protected static final Character SUB = '-';
+    protected static final HashMap<Character, Object> operators = new HashMap<>();
 
     static {
         operators.put(GT, "6");
@@ -74,17 +74,21 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         operators.put(CLOSING_PARENTHESIS, "0");
     }
 
-    private Context ctx;
+    private final LogicalEvaluator logicalEvaluator;
+    protected Context ctx;
+    protected String expressionString;
+    protected Expression expression;
     private boolean evaluateAllTerms;
-    private String expression;
-    private LogicalEvaluator logicalEvaluator;
-    private StringUtils stringUtils;
     private int order = 0;
 
-    public LogicalArithmeticEvaluator(StringUtils stringUtils, LogicalEvaluator logicalEvaluator) {
-        this.stringUtils = stringUtils;
+    public LogicalArithmeticEvaluator(LogicalEvaluator logicalEvaluator) {
+        this(logicalEvaluator, false);
+    }
+
+
+    public LogicalArithmeticEvaluator(LogicalEvaluator logicalEvaluator, boolean evaluateAllTerms) {
         this.logicalEvaluator = logicalEvaluator;
-        this.evaluateAllTerms = false;
+        this.evaluateAllTerms = evaluateAllTerms;
     }
 
     private static HashSet<Character> getOperators() {
@@ -110,10 +114,10 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         }
     }
 
-    public boolean evaluate(Context c)
+    public T evaluate(Context c)
             throws ExpressionException, ContextException {
         setContext(c);
-        return evaluate();
+        return (T) evaluate();
     }
 
     private Boolean evaluate()
@@ -122,10 +126,10 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         //build the Binary Tree
         Expression rootNode = buildExpressionTree();
 
-        if (rootNode != null && rootNode instanceof LogicalExpression) {
+        if (rootNode instanceof LogicalExpression) {
             //Evaluate the tree
             return (Boolean) (rootNode.evaluate(ctx)).getValue();
-        } else if (rootNode != null && rootNode instanceof LogicalArithmeticExpression) {
+        } else if (rootNode instanceof LogicalArithmeticExpression) {
             //Evaluate the tree
             return (Boolean) (rootNode.evaluate(ctx)).getCondition();
         } else {
@@ -133,8 +137,8 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         }
     }
 
-    public Expression buildExpressionTree() {
-        String pfExpr = infixToPostFix(expression);
+    protected Expression buildExpressionTree() throws ExpressionException {
+        String pfExpr = infixToPostFix(expressionString);
         return buildTree(pfExpr);
     }
 
@@ -210,11 +214,11 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         return pfExpr.toString();
     }
 
-    public Expression buildTree(String expr) {
+    private Expression buildTree(String expr) throws ExpressionException {
         Stack<Expression> s = new Stack<>();
         Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
+        Collection<String> tokens = StringUtils.splitBySeparators(expressionString, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
 
@@ -223,20 +227,31 @@ public class LogicalArithmeticEvaluator implements Evaluator {
                 if (limit == -1) {
                     limit = expr.length();
                 }
-                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
                 tokens.remove(token);
                 Expression e = new TerminalLogicalArithmeticExpression(token);
                 s.push(e);
                 expr = expr.substring(token.length()).trim();
             } else {
-                Expression r = s.pop();
-                Expression l = s.pop();
+                Expression r;
+                Expression l;
+                try {
+                    r = s.pop();
+                } catch (java.util.EmptyStackException ese) {
+                    throw new ExpressionException("There is no right element in the expression to evaluating for");
+                }
+                try {
+                    l = s.pop();
+                } catch (java.util.EmptyStackException ese) {
+                    throw new ExpressionException("There is no left element in the expression to evaluating for");
+                }
                 Expression n = getNonTerminalExpression(currChar, l, r);
                 s.push(n);
                 expr = expr.substring(1).trim();
             }
-        }//for
-        return s.size() == 0 ? null : s.pop();
+        }
+        expression = s.size() == 0 ? null : s.pop();
+        return expression;
     }
 
     public boolean isOperator(String str) {
@@ -300,18 +315,46 @@ public class LogicalArithmeticEvaluator implements Evaluator {
         ctx = c;
     }
 
-    public String getExpression() {
-        return expression;
+    public String getExpressionString() {
+        return expressionString;
     }
 
-    public void setExpression(String expr) {
-        expression = expr;
+    @Override
+    public void setExpressionString(String expr) throws ExpressionException {
+        //String regex = ".*[" + getFullOperationsRegex() + "].*";
+        if (expr == null || !containsAnyOperator(expr, getOperations())) {
+            throw new IllegalArgumentException("Incoming expression of '" + expr + "' is not parsable as a Logical Arithmetical type");
+        }
+        expressionString = expr;
+        this.buildExpressionTree();
+    }
+
+    protected String getOperationsRegex() {
+        final StringBuilder result = new StringBuilder();
+        IterableUtils.forEach(Arrays.asList("\\", "\\", ADD, AND, DIV, EQ, GET, GT, LE, "\\", "\\", LET, LT, "\\", "\\", MUL, NOT, "\\", "\\", OR, "\\", "\\", SUB), result::append);
+        return result.toString();
     }
 
     public Collection getTokens() {
-        Expression exp = buildExpressionTree();
-        return exp == null ? new ArrayList() : exp.getTerms();
+        return expression == null ? new ArrayList() : expression.getTerms();
     }
 
+    protected List<Character> getOperations() {
+        return Arrays.asList(ADD, AND, DIV, EQ, GET, GT, LE, LET, LT, MUL, NOT, OR, SUB);
+    }
+
+    private boolean containsAnyOperator(String expression, List<Character> list) {
+        for (Character operator : list) {
+            if (expression.contains(String.valueOf(operator))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Expression getExpression() {
+        return expression;
+    }
 } // End of class
 

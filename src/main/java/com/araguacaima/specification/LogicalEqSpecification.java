@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Logical Equality specification, used to create a new specifcation that is the biconditional of two other
+ * Logical Equality specification, used to create a new specification that is the biconditional of two other
  * specifications.
  */
 @SuppressWarnings("WeakerAccess")

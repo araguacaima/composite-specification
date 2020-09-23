@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,6 +19,7 @@
 
 package com.araguacaima.specification.interpreter;
 
+import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +31,11 @@ public interface Evaluator {
 
     Logger log = LoggerFactory.getLogger(Evaluator.class);
 
+    Expression getExpression();
+
+    <T> T evaluate(Context c) throws ExpressionException, ContextException;
+
     void addToContext(String key, String value);
-
-    Expression buildExpressionTree()
-            throws ExpressionException;
-
-    Expression buildTree(String expr)
-            throws ExpressionException;
 
     Context getContext();
 
@@ -78,13 +77,13 @@ public interface Evaluator {
      */
     void setOrder(int order);
 
-    String getExpression();
+    String getExpressionString();
 
-    void setExpression(String expr);
+    void setExpressionString(String expr) throws ExpressionException;
 
     NonTerminalExpression getNonTerminalExpression(String operation, Expression l, Expression r);
 
-    Collection<Expression> getTokens() throws ExpressionException;
+    Collection<Expression> getTokens();
 
     String infixToPostFix(String str);
 

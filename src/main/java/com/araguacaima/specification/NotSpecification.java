@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * NOT decorator, used to create a new specifcation that is the inverse (NOT) of the given specification.
+ * NOT decorator, used to create a new specification that is the inverse (NOT) of the given specification.
  */
 @SuppressWarnings("WeakerAccess")
 public class NotSpecification extends AbstractSpecification {

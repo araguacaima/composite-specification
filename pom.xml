@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>composite-specification</artifactId>
-    <version>1.2</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <url>http://maven.apache.org</url>
@@ -46,13 +46,13 @@
     </distributionManagement>
 
     <properties>
-        <slf4j.version>1.7.25</slf4j.version>
         <commons-beanutils-commons-beanutils>1.9.4</commons-beanutils-commons-beanutils>
         <commons-io-commons-io>2.6</commons-io-commons-io>
-        <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
-        <aspectj.version>1.8.4</aspectj.version>
+        <logback.version>1.2.3</logback.version>
         <com.araguacaima-commons-utils>1.5.4</com.araguacaima-commons-utils>
         <org.apache.commons-commons-collections4>4.4</org.apache.commons-commons-collections4>
+        <org.apache.commons-commons-lang3>3.6</org.apache.commons-commons-lang3>
+        <joda-time-joda-time>2.9.9</joda-time-joda-time>
 
         <!-- Generic properties -->
         <java.version>1.8</java.version>
@@ -71,24 +71,19 @@
         <org.apache.maven.plugin-maven-dependency-plugin>3.0.1</org.apache.maven.plugin-maven-dependency-plugin>
         <org.codehaus.mojo-aspectj-maven-plugin>1.8</org.codehaus.mojo-aspectj-maven-plugin>
         <org.apache.maven.plugins-maven-jar-plugin>3.0.2</org.apache.maven.plugins-maven-jar-plugin>
-        <maven.skip.tests>true</maven.skip.tests>
+        <org.apache.maven.plugins-maven-javadoc-plugin>3.0.0-M1</org.apache.maven.plugins-maven-javadoc-plugin>
+        <org.apache.maven.plugins-maven-source-plugin>2.2.1</org.apache.maven.plugins-maven-source-plugin>
+        <org.apache.maven.plugins-maven-compiler-plugin>2.3.2</org.apache.maven.plugins-maven-compiler-plugin>
+        <maven.skip.tests>false</maven.skip.tests>
 
         <!-- tests -->
-        <org.evosuite-evosuite-standalone-runtime>1.0.5</org.evosuite-evosuite-standalone-runtime>
-        <org.evosuite.plugins-evosuite-maven-plugin>1.0.5</org.evosuite.plugins-evosuite-maven-plugin>
-        <junit-junit>4.12</junit-junit>
-        <org.junit.jupiter-junit-jupiter-api>RELEASE</org.junit.jupiter-junit-jupiter-api>
+        <junit-junit>4.13</junit-junit>
 
         <!-- deployment -->
         <org.sonatype.plugins-nexus-staging-maven-plugin>1.6.8</org.sonatype.plugins-nexus-staging-maven-plugin>
         <org.apache.maven.plugins-maven-gpg-plugin>1.6</org.apache.maven.plugins-maven-gpg-plugin>
         <org.apache.maven.plugins-maven-release-plugin>2.5.3</org.apache.maven.plugins-maven-release-plugin>
 
-        <!-- maven-compiler-plugin -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <org.apache.maven.plugins-maven-source-plugin>2.2.1</org.apache.maven.plugins-maven-source-plugin>
-        <org.apache.maven.plugins-maven-compiler-plugin>2.3.2</org.apache.maven.plugins-maven-compiler-plugin>
 
     </properties>
     <dependencies>
@@ -100,29 +95,30 @@
         </dependency>
 
         <dependency>
-            <groupId>com.araguacaima</groupId>
-            <artifactId>commons-utils</artifactId>
-            <version>${com.araguacaima-commons-utils}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${org.apache.commons-commons-collections4}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>${aspectj.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <version>${aspectj.version}</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>${org.apache.commons-commons-collections4}</version>
+            <artifactId>commons-lang3</artifactId>
+            <version>${org.apache.commons-commons-lang3}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time-joda-time}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -132,34 +128,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit-junit}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.evosuite</groupId>
-            <artifactId>evosuite-standalone-runtime</artifactId>
-            <version>${org.evosuite-evosuite-standalone-runtime}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${org.apache.logging.log4j}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${org.apache.logging.log4j}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${org.apache.logging.log4j}</version>
             <scope>test</scope>
         </dependency>
 
@@ -301,7 +269,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.0-M1</version>
+                        <version>${org.apache.maven.plugins-maven-javadoc-plugin}</version>
                         <configuration>
                             <show>private</show>
                             <nohelp>true</nohelp>

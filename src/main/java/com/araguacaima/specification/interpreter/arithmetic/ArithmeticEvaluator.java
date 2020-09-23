@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,14 +19,13 @@
 
 package com.araguacaima.specification.interpreter.arithmetic;
 
-import com.araguacaima.commons.utils.StringUtils;
+import com.araguacaima.specification.common.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Evaluator;
 import com.araguacaima.specification.interpreter.Expression;
 import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.exception.ContextException;
 import com.araguacaima.specification.interpreter.exception.ExpressionException;
-import com.araguacaima.specification.interpreter.exception.InvalidExpressionException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.TransformerUtils;
@@ -54,13 +53,12 @@ public class ArithmeticEvaluator implements Evaluator {
 
     private Context ctx;
     private boolean evaluateAllTerms;
-    private String expression;
-    private StringUtils stringUtils;
+    private String expressionString;
     private int order = 0;
+    private Expression expression;
 
-    public ArithmeticEvaluator(StringUtils stringUtils) {
+    public ArithmeticEvaluator() {
         this(false);
-        this.stringUtils = stringUtils;
     }
 
     public ArithmeticEvaluator(boolean evaluateAllTerms) {
@@ -80,28 +78,18 @@ public class ArithmeticEvaluator implements Evaluator {
         ((ArithmeticContext) ctx).assign(key, Double.valueOf(value));
     }
 
-    public Double evaluate(Context c)
-            throws ExpressionException, ContextException {
+    @Override
+    public Double evaluate(Context c) throws ExpressionException, ContextException {
         setContext(c);
         return evaluate();
     }
 
-    private double evaluate()
-            throws ExpressionException, ContextException {
-
-        //build the Binary Tree
-        Expression rootNode = buildExpressionTree();
-
-        if (rootNode != null && rootNode instanceof ArithmeticExpression) {
-            //Evaluate the tree
-            return (Double) (rootNode.evaluate(ctx)).getValue();
-        } else {
-            throw new InvalidExpressionException();
-        }
+    private double evaluate() throws ExpressionException, ContextException {
+        return (Double) (expression.evaluate(ctx)).getValue();
     }
 
-    public Expression buildExpressionTree() {
-        String pfExpr = infixToPostFix(expression);
+    private Expression buildExpressionTree() throws ExpressionException {
+        String pfExpr = infixToPostFix(expressionString);
         return buildTree(pfExpr);
     }
 
@@ -156,7 +144,6 @@ public class ArithmeticEvaluator implements Evaluator {
                                 tempStr = s.pop();
                                 strVal1 = (String) operators.get(tempStr.toCharArray()[0]);
                                 val1 = Integer.parseInt(strVal1);
-
                             }
                         }
                         if ((val1 < val2) && (val1 != -100)) {
@@ -177,33 +164,43 @@ public class ArithmeticEvaluator implements Evaluator {
         return pfExpr.toString();
     }
 
-    public Expression buildTree(String expr) {
+    public Expression buildTree(String expr) throws ExpressionException {
         Stack<Expression> s = new Stack<>();
         Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = stringUtils.splitBySeparators(expression, symbolOperators);
+        Collection tokens = StringUtils.splitBySeparators(expressionString, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
-
             if (!isOperator(currChar)) {
                 int limit = StringUtils.firstIndexOf(expr, symbolOperators);
                 if (limit == -1) {
                     limit = expr.length();
                 }
-                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
                 tokens.remove(token);
                 Expression e = new TerminalArithmeticExpression(token);
                 s.push(e);
                 expr = expr.substring(token.length()).trim();
             } else {
-                Expression r = s.pop();
-                Expression l = s.pop();
+                Expression r;
+                Expression l;
+                try {
+                    r = s.pop();
+                } catch (java.util.EmptyStackException ese) {
+                    throw new ExpressionException("There is no right element in the expression to evaluating for");
+                }
+                try {
+                    l = s.pop();
+                } catch (java.util.EmptyStackException ese) {
+                    throw new ExpressionException("There is no left element in the expression to evaluating for");
+                }
                 Expression n = getNonTerminalExpression(currChar, l, r);
                 s.push(n);
                 expr = expr.substring(1).trim();
             }
-        }//for
-        return s.size() == 0 ? null : s.pop();
+        }
+        expression = s.size() == 0 ? null : s.pop();
+        return expression;
     }
 
     public boolean isOperator(String str) {
@@ -261,18 +258,46 @@ public class ArithmeticEvaluator implements Evaluator {
         this.order = order;
     }
 
-    public String getExpression() {
-        return expression;
+    public String getExpressionString() {
+        return expressionString;
     }
 
-    public void setExpression(String expr) {
-        expression = expr;
+    @Override
+    public void setExpressionString(String expr) throws ExpressionException {
+        //String regex = ".*[" + getFullOperationsRegex() + "].*";
+        if (expr == null || !containsAnyOperator(expr, getOperations())) {
+            throw new IllegalArgumentException("Incoming expression of '" + expr + "' is not parsable as a Arithmetic type");
+        }
+        expressionString = expr;
+        buildExpressionTree();
+    }
+
+    protected List<Character> getOperations() {
+        return Arrays.asList(ADD, DIV, MUL, SUB);
+    }
+
+    private boolean containsAnyOperator(String expression, List<Character> list) {
+        for (Character operator : list) {
+            if (expression.contains(String.valueOf(operator))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getOperationsRegex() {
+        final StringBuilder result = new StringBuilder();
+        IterableUtils.forEach(Arrays.asList("\\", "\\", ADD, "\\", "\\", SUB, DIV, "\\", "\\", MUL), result::append);
+        return result.toString();
     }
 
     public Collection getTokens() {
-        Expression exp = buildExpressionTree();
-        return exp == null ? new ArrayList() : exp.getTerms();
+        return expression == null ? new ArrayList() : expression.getTerms();
     }
 
-} // End of class
+    @Override
+    public Expression getExpression() {
+        return expression;
+    }
+}
 

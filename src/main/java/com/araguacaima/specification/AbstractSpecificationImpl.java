@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 araguacaima
+ * Copyright 2020 araguacaima
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -31,8 +31,8 @@ public class AbstractSpecificationImpl extends AbstractSpecification {
         super(evaluateAllTerms);
     }
 
-    public boolean isSatisfiedBy(Object object, Map<Object, Object> map)
-            throws Exception {
+    @Override
+    public boolean isSatisfiedBy(Object object, Map<Object, Object> map) {
         return false;
     }
 }
