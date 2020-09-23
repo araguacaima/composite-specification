@@ -27,9 +27,9 @@
     </developers>
 
     <scm>
-        <connection>git:git@github.com:araguacaima/composite-specification.git</connection>
-        <url>git:git@github.com:araguacaima/composite-specification.git</url>
-        <developerConnection>git:git@github.com:araguacaima/composite-specification.git</developerConnection>
+        <connection>ssh:git@github.com:araguacaima/composite-specification.git</connection>
+        <url>ssh:git@github.com:araguacaima/composite-specification.git</url>
+        <developerConnection>ssh:git@github.com:araguacaima/composite-specification.git</developerConnection>
   </scm>
 
     <distributionManagement>
