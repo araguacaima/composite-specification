@@ -19,12 +19,16 @@
 
 package com.araguacaima.specification;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 @SuppressWarnings("WeakerAccess")
 public class IsNumberSpec extends AbstractSpecification {
+    private static final Logger log = LoggerFactory.getLogger(IsNumberSpec.class);
 
     public IsNumberSpec() {
         this(false);
@@ -35,12 +39,15 @@ public class IsNumberSpec extends AbstractSpecification {
     }
 
     public boolean isSatisfiedBy(Object object, Map<Object, Object> map) {
+        boolean result = false;
         try {
             Double.parseDouble(object.toString());
-            return true;
+            result = true;
         } catch (Throwable t) {
-            return false;
+            result = false;
         }
+        log.debug("I'm the '" + this.getClass().getSimpleName() + "' specification. I've evaluated in '" + result + "'");
+        return result;
     }
 
     public Collection<Object> getTerms() {

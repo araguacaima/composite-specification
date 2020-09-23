@@ -48,7 +48,7 @@
     <properties>
         <commons-beanutils-commons-beanutils>1.9.4</commons-beanutils-commons-beanutils>
         <commons-io-commons-io>2.6</commons-io-commons-io>
-        <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
+        <logback.version>1.2.3</logback.version>
         <com.araguacaima-commons-utils>1.5.4</com.araguacaima-commons-utils>
         <org.apache.commons-commons-collections4>4.4</org.apache.commons-commons-collections4>
 
@@ -106,26 +106,19 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Tests -->
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit-junit}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${org.apache.logging.log4j}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${org.apache.logging.log4j}</version>
             <scope>test</scope>
         </dependency>
 

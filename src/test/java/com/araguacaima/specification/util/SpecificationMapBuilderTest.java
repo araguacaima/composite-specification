@@ -33,6 +33,7 @@ public class SpecificationMapBuilderTest {
     @Test
     public void testAlwaysResolveFalse()
             throws Exception {
+        log.info("\n------------------------\nTesting testAlwaysResolveFalse\n------------------------");
         Specification specification = specificationMap.getSpecificationFromMethod("test1");
         assertNotNull(specification);
         log.info("specifications: " + specification);
@@ -46,6 +47,7 @@ public class SpecificationMapBuilderTest {
     @Test
     public void testAlwaysResolveTrue()
             throws Exception {
+        log.info("\n------------------------\nTesting testAlwaysResolveTrue\n------------------------");
         Specification specification = specificationMap.getSpecificationFromMethod("test2");
         assertNotNull(specification);
         log.info("specifications: " + specification);
@@ -57,6 +59,7 @@ public class SpecificationMapBuilderTest {
 
     @Test
     public void testResolveTrueIfOdd() throws Exception {
+        log.info("\n------------------------\nTesting testResolveTrueIfOdd with input of 8 as number\n------------------------");
         Specification specification = specificationMap.getSpecificationFromMethod("test3");
         assertNotNull(specification);
         log.info("specifications: " + specification);
@@ -69,6 +72,7 @@ public class SpecificationMapBuilderTest {
 
     @Test
     public void testResolveFalseDueIsNotNumber() throws Exception {
+        log.info("\n------------------------\nTesting testResolveFalseDueIsNotNumber with input of 8 as String \n------------------------");
         Specification specification = specificationMap.getSpecificationFromMethod("test3");
         assertNotNull(specification);
         log.info("specifications: " + specification);
@@ -82,6 +86,7 @@ public class SpecificationMapBuilderTest {
     @Test
     public void testResolveFalseDueIsEven()
             throws Exception {
+        log.info("\n------------------------\nTesting testResolveFalseDueIsEven with input of 7 as Number\n------------------------");
         Specification specification = specificationMap.getSpecificationFromMethod("test3");
         assertNotNull(specification);
         log.info("specifications: " + specification);

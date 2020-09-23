@@ -43,10 +43,10 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
 
     private static final Logger log = LoggerFactory.getLogger(SpecificationMap.class);
     private final Map<String, Specification> specificationMap = new HashMap<>();
-    private String className;
-    private LogicalEvaluator logicalEvaluator;
     private final MapUtils mapUtils = MapUtils.getInstance();
     private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
+    private String className;
+    private LogicalEvaluator logicalEvaluator;
     private Properties properties = new Properties();
 
     private SpecificationMap() {

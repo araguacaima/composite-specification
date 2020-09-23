@@ -51,10 +51,10 @@ public class ArithmeticEvaluator implements Evaluator {
         operators.put(CLOSING_PARENTHESIS, "0");
     }
 
+    private final StringUtils stringUtils = StringUtils.getInstance();
     private Context ctx;
     private boolean evaluateAllTerms;
     private String expressionString;
-    private final StringUtils stringUtils = StringUtils.getInstance();
     private int order = 0;
     private Expression expression;
 

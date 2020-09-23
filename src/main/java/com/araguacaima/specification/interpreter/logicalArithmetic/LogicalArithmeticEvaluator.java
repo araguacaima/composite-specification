@@ -74,12 +74,12 @@ public class LogicalArithmeticEvaluator<T> implements Evaluator {
         operators.put(CLOSING_PARENTHESIS, "0");
     }
 
+    private final LogicalEvaluator logicalEvaluator;
     protected Context ctx;
     protected String expressionString;
     protected StringUtils stringUtils = StringUtils.getInstance();
     protected Expression expression;
     private boolean evaluateAllTerms;
-    private final LogicalEvaluator logicalEvaluator;
     private int order = 0;
 
     public LogicalArithmeticEvaluator(LogicalEvaluator logicalEvaluator) {

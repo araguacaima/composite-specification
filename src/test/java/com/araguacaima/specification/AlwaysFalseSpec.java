@@ -19,11 +19,15 @@
 
 package com.araguacaima.specification;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 public class AlwaysFalseSpec extends AbstractSpecification {
+    private static final Logger log = LoggerFactory.getLogger(AlwaysFalseSpec.class);
 
     public AlwaysFalseSpec() {
         this(false);
@@ -34,6 +38,8 @@ public class AlwaysFalseSpec extends AbstractSpecification {
     }
 
     public boolean isSatisfiedBy(Object object, Map<Object, Object> map) {
+        log.debug("I'm the '" + this.getClass().getSimpleName() + "' specification. I've evaluated in '" + false + "'");
+
         return false;
     }
 
