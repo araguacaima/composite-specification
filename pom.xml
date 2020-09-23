@@ -28,9 +28,9 @@
     </developers>
 
     <scm>
-        <connection>https://github.com/araguacaima/composite-specification.git</connection>
-        <developerConnection>https://github.com/araguacaima/composite-specification.git</developerConnection>
-        <url>https://github.com/araguacaima/composite-specification/tree/master</url>
+        <connection>scm:git:git@github.com:araguacaima/composite-specification.git</connection>
+        <url>scm:git:git@github.com:araguacaima/composite-specification.git</url>
+        <developerConnection>scm:git:git@github.com:araguacaima/composite-specification.git</developerConnection>
     </scm>
 
     <distributionManagement>
