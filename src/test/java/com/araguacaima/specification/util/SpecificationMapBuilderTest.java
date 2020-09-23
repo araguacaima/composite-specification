@@ -14,8 +14,8 @@ import static org.junit.Assert.*;
 
 public class SpecificationMapBuilderTest {
     private static final Logger log = LoggerFactory.getLogger(SpecificationMapBuilder.class);
-    private SpecificationMap specificationMap;
     private final SpecificationMapBuilder specificationMapBuilder = new SpecificationMapBuilder();
+    private SpecificationMap specificationMap;
 
     @Before
     public void setUp() {
@@ -62,7 +62,7 @@ public class SpecificationMapBuilderTest {
         log.info("specifications: " + specification);
         assertEquals(specification.toString().trim(),
                 "((com.araguacaima.specification.AlwaysTrueSpec | com.araguacaima.specification.AlwaysFalseSpec) & com.araguacaima.specification.AlwaysTrueWhenOddNumberSpec)");
-        boolean result = specification.isSatisfiedBy(null, null);
+        boolean result = specification.isSatisfiedBy(8, null);
         log.info("result: " + result);
         assertTrue(result);
     }
@@ -87,7 +87,7 @@ public class SpecificationMapBuilderTest {
         log.info("specifications: " + specification);
         assertEquals(specification.toString().trim(),
                 "((com.araguacaima.specification.AlwaysTrueSpec | com.araguacaima.specification.AlwaysFalseSpec) & com.araguacaima.specification.AlwaysTrueWhenOddNumberSpec)");
-        boolean result = specification.isSatisfiedBy(8, null);
+        boolean result = specification.isSatisfiedBy(7, null);
         log.info("result: " + result);
         assertFalse(result);
     }

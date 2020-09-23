@@ -56,7 +56,7 @@ public class LogicalEvaluator implements Evaluator {
     private Context ctx;
     private boolean evaluateAllTerms;
     private String expressionString;
-    private StringUtils stringUtils = StringUtils.getInstance();
+    private final StringUtils stringUtils = StringUtils.getInstance();
     private int order = 0;
     private Expression expression;
 

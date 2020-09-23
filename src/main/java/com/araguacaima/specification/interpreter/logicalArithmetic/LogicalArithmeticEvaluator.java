@@ -75,12 +75,12 @@ public class LogicalArithmeticEvaluator<T> implements Evaluator {
     }
 
     protected Context ctx;
-    private boolean evaluateAllTerms;
     protected String expressionString;
-    private LogicalEvaluator logicalEvaluator;
     protected StringUtils stringUtils = StringUtils.getInstance();
-    private int order = 0;
     protected Expression expression;
+    private boolean evaluateAllTerms;
+    private final LogicalEvaluator logicalEvaluator;
+    private int order = 0;
 
     public LogicalArithmeticEvaluator(LogicalEvaluator logicalEvaluator) {
         this(logicalEvaluator, false);

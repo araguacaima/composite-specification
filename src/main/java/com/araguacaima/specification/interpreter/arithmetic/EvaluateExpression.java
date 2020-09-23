@@ -1,4 +1,4 @@
-package com.araguacaima.specification.util;
+package com.araguacaima.specification.interpreter.arithmetic;
 
 import java.util.ArrayList;
 import java.util.Collection;

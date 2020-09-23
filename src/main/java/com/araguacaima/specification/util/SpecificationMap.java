@@ -45,8 +45,8 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
     private final Map<String, Specification> specificationMap = new HashMap<>();
     private String className;
     private LogicalEvaluator logicalEvaluator;
-    private MapUtils mapUtils = MapUtils.getInstance();
-    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
+    private final MapUtils mapUtils = MapUtils.getInstance();
+    private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
     private Properties properties = new Properties();
 
     private SpecificationMap() {

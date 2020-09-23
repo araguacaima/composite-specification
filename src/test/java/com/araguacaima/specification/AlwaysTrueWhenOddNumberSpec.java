@@ -40,7 +40,7 @@ public class AlwaysTrueWhenOddNumberSpec extends AbstractSpecification {
     public boolean isSatisfiedBy(Object object, Map<Object, Object> map) {
         boolean result = false;
 
-        if (Number.class.isAssignableFrom(object.getClass())) {
+        if (object != null && Number.class.isAssignableFrom(object.getClass())) {
             Number obj = (Number) object;
             if (obj.longValue() % 2 == 0) {
                 result = true;

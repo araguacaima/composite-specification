@@ -28,7 +28,7 @@ import java.util.Collection;
 
 public class SpecificationUtil {
 
-    private ReflectionUtils reflectionUtils;
+    private final ReflectionUtils reflectionUtils;
 
     public SpecificationUtil(ReflectionUtils reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
