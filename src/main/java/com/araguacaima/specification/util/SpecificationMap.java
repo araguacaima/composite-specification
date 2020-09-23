@@ -19,11 +19,10 @@
 
 package com.araguacaima.specification.util;
 
-import com.araguacaima.commons.utils.MapUtils;
-import com.araguacaima.commons.utils.NotNullOrEmptyStringObjectPredicate;
-import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.AbstractSpecificationImpl;
 import com.araguacaima.specification.Specification;
+import com.araguacaima.specification.common.MapUtils;
+import com.araguacaima.specification.common.StringUtils;
 import com.araguacaima.specification.interpreter.Expression;
 import com.araguacaima.specification.interpreter.NonTerminalExpression;
 import com.araguacaima.specification.interpreter.TerminalExpression;
@@ -31,6 +30,7 @@ import com.araguacaima.specification.interpreter.exception.ExpressionException;
 import com.araguacaima.specification.interpreter.logical.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +43,7 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
 
     private static final Logger log = LoggerFactory.getLogger(SpecificationMap.class);
     private final Map<String, Specification> specificationMap = new HashMap<>();
-    private final MapUtils mapUtils = MapUtils.getInstance();
-    private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
+    private final Predicate<Object> notNullOrEmptyStringObjectPredicate = object -> StringUtils.isNotBlank(object.toString());
     private String className;
     private LogicalEvaluator logicalEvaluator;
     private Properties properties = new Properties();
@@ -80,6 +79,7 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
             if (node instanceof TerminalExpression) {
                 String nodeclassName = (String) node.getValue();
                 try {
+                    @SuppressWarnings("unchecked")
                     Class<Specification> clazz = (Class<Specification>) classLoader.loadClass(nodeclassName);
                     try {
                         spec = clazz.getConstructor(new Class[]{Boolean.TYPE}).newInstance(spec
@@ -170,7 +170,7 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
         final Map<Object, Object> propertiesByClass = new HashMap<>();
         IterableUtils.forEach(classesSet, o -> {
             final String className = (String) o;
-            propertiesByClass.putAll(mapUtils.select(properties,
+            propertiesByClass.putAll(MapUtils.select(properties,
                     o1 -> ((String) o1).startsWith(className),
                     notNullOrEmptyStringObjectPredicate));
         });
@@ -206,8 +206,8 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
                     final Specification value = buildSpecification(evaluateAllTerms, order, property, classLoader);
                     specificationMap.put(methodName, value);
                 }
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
+            } catch (Exception t) {
+                t.printStackTrace();
             }
         });
 
@@ -229,12 +229,12 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
         return specificationMap;
     }
 
-    public Collection getTermsByMethod(String methodName) throws ExpressionException {
+    public Collection<?> getTermsByMethod(String methodName) throws ExpressionException {
         return getTermsByMethod(methodName, false);
     }
 
     @SuppressWarnings("SameParameterValue")
-    private Collection getTermsByMethod(String methodName, boolean evaluateAllTerms) throws ExpressionException {
+    private Collection<?> getTermsByMethod(String methodName, boolean evaluateAllTerms) throws ExpressionException {
         String expression = (String) properties.get(className + "." + methodName);
         logicalEvaluator.setEvaluateAllTerms(evaluateAllTerms);
         logicalEvaluator.setExpressionString(expression);
@@ -242,7 +242,7 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
         CollectionUtils.transform(tokens, o -> {
             String tokenClassName = o.toString();
             try {
-                Class clazz = Class.forName(tokenClassName);
+                Class<?> clazz = Class.forName(tokenClassName);
                 return (Expression) clazz.newInstance();
             } catch (ClassNotFoundException e) {
                 String message = "It was not possible to find class '" + className + "' because of an Exception of "
@@ -266,7 +266,7 @@ public class SpecificationMap implements Comparable<SpecificationMap> {
             }
             try {
                 ClassLoader classLoader = Class.forName(className).getClassLoader();
-                Class clazz = classLoader.loadClass(tokenClassName);
+                Class<?> clazz = classLoader.loadClass(tokenClassName);
                 return (Expression) clazz.newInstance();
             } catch (ClassNotFoundException e) {
                 String message = "It was not possible to find class " + className + "' because of an Exception of " +

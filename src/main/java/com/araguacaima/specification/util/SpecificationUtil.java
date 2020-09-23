@@ -19,8 +19,8 @@
 
 package com.araguacaima.specification.util;
 
-import com.araguacaima.commons.utils.ReflectionUtils;
 import com.araguacaima.specification.Specification;
+import com.araguacaima.specification.common.ReflectionUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -28,35 +28,29 @@ import java.util.Collection;
 
 public class SpecificationUtil {
 
-    private final ReflectionUtils reflectionUtils;
-
-    public SpecificationUtil(ReflectionUtils reflectionUtils) {
-        this.reflectionUtils = reflectionUtils;
-    }
-
     public Collection<Object> getClassNamesTerms(Specification specification) {
 
-        Collection<Object> result = new ArrayList<Object>(specification.getTerms());
-        CollectionUtils.transform(result, o -> ((Class) o).getName());
+        Collection<Object> result = new ArrayList<>(specification.getTerms());
+        CollectionUtils.transform(result, o -> ((Class<?>) o).getName());
         return result;
     }
 
-    public Collection<String> getSpecificationClassesNamesForObject(Class clazz)
+    public Collection<String> getSpecificationClassesNamesForObject(Class<?> clazz)
             throws IllegalAccessException, InstantiationException {
         return getSpecificationClassesNamesForObject(clazz.newInstance());
     }
 
     private Collection<String> getSpecificationClassesNamesForObject(Object object) {
-        Collection<String> result = new ArrayList<String>();
-        Collection<String> specificationFields = reflectionUtils.getAllFieldsNamesOfType(object.getClass(),
+        Collection<String> result = new ArrayList<>();
+        Collection<String> specificationFields = ReflectionUtils.getAllFieldsNamesOfType(object.getClass(),
                 Specification.class);
         for (Object specificationField : specificationFields) {
             String field = (String) specificationField;
-            Specification specification = (Specification) reflectionUtils.invokeGetter(object, field);
+            Specification specification = (Specification) ReflectionUtils.invokeGetter(object, field);
             if (specification != null) {
-                Collection terms = specification.getTerms();
+                Collection<Object> terms = specification.getTerms();
                 for (Object term1 : terms) {
-                    String term = ((Class) term1).getSimpleName();
+                    String term = ((Class<?>) term1).getSimpleName();
                     result.add(term);
                 }
             }

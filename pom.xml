@@ -51,6 +51,8 @@
         <logback.version>1.2.3</logback.version>
         <com.araguacaima-commons-utils>1.5.4</com.araguacaima-commons-utils>
         <org.apache.commons-commons-collections4>4.4</org.apache.commons-commons-collections4>
+        <org.apache.commons-commons-lang3>3.6</org.apache.commons-commons-lang3>
+        <joda-time-joda-time>2.9.9</joda-time-joda-time>
 
         <!-- Generic properties -->
         <java.version>1.8</java.version>
@@ -93,16 +95,23 @@
         </dependency>
 
         <dependency>
-            <groupId>com.araguacaima</groupId>
-            <artifactId>commons-utils</artifactId>
-            <version>${com.araguacaima-commons-utils}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${org.apache.commons-commons-collections4}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>${org.apache.commons-commons-collections4}</version>
+            <artifactId>commons-lang3</artifactId>
+            <version>${org.apache.commons-commons-lang3}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time-joda-time}</version>
             <scope>compile</scope>
         </dependency>
 

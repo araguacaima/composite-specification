@@ -19,7 +19,7 @@
 
 package com.araguacaima.specification.interpreter.logical;
 
-import com.araguacaima.commons.utils.StringUtils;
+import com.araguacaima.specification.common.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Evaluator;
 import com.araguacaima.specification.interpreter.Expression;
@@ -53,7 +53,6 @@ public class LogicalEvaluator implements Evaluator {
         operators.put(CLOSING_PARENTHESIS, "0");
     }
 
-    private final StringUtils stringUtils = StringUtils.getInstance();
     private Context ctx;
     private boolean evaluateAllTerms;
     private String expressionString;
@@ -168,7 +167,7 @@ public class LogicalEvaluator implements Evaluator {
         Stack<Expression> s = new Stack<>();
         Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection tokens = stringUtils.splitBySeparators(expressionString, symbolOperators);
+        Collection tokens = StringUtils.splitBySeparators(expressionString, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
             if (isNot(currChar)) {
@@ -181,7 +180,7 @@ public class LogicalEvaluator implements Evaluator {
                 if (limit == -1) {
                     limit = expr.length();
                 }
-                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
                 tokens.remove(token);
                 Expression e = new TerminalLogicalExpression(getEvaluateAllTerms(), token);
                 s.push(e);

@@ -19,7 +19,6 @@
 
 package com.araguacaima.specification;
 
-import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.interpreter.logical.LogicalEvaluator;
 
 import java.util.ArrayList;
@@ -143,7 +142,7 @@ public abstract class AbstractSpecification implements Specification {
      */
 
     public String toString() {
-        return getExpressionStringFromSpecification(this, StringUtils.EMPTY);
+        return getExpressionStringFromSpecification(this, "");
     }
 
 }

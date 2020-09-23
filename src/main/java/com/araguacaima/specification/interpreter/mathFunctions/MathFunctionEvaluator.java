@@ -19,7 +19,7 @@
 
 package com.araguacaima.specification.interpreter.mathFunctions;
 
-import com.araguacaima.commons.utils.StringUtils;
+import com.araguacaima.specification.common.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Expression;
 import com.araguacaima.specification.interpreter.NonTerminalExpression;
@@ -91,7 +91,7 @@ public class MathFunctionEvaluator extends LogicalArithmeticEvaluator<Double> {
         Stack<Expression> s = new Stack<>();
         Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection<String> tokens = stringUtils.splitBySeparators(expressionString, symbolOperators);
+        Collection<String> tokens = StringUtils.splitBySeparators(expressionString, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
 
@@ -100,7 +100,7 @@ public class MathFunctionEvaluator extends LogicalArithmeticEvaluator<Double> {
                 if (limit == -1) {
                     limit = expr.length();
                 }
-                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
                 tokens.remove(token);
                 for (String element : token.split(",")) {
                     Expression e = new TerminalLogicalArithmeticExpression(element);

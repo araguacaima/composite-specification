@@ -19,7 +19,6 @@
 
 package com.araguacaima.specification.interpreter.logicalArithmetic;
 
-import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Expression;
 import com.araguacaima.specification.interpreter.TerminalExpression;
@@ -46,7 +45,7 @@ public class TerminalLogicalArithmeticExpression extends LogicalArithmeticExpres
             String[] tokens = var.split("\\{");
             String specificationParameterName;
             try {
-                specificationParameterName = tokens[1].replaceAll("}", StringUtils.EMPTY);
+                specificationParameterName = tokens[1].replaceAll("}", "");
             } catch (Throwable t) {
                 specificationParameterName = null;
             }

@@ -19,8 +19,8 @@
 
 package com.araguacaima.specification.interpreter.logicalArithmetic;
 
-import com.araguacaima.commons.utils.StringUtils;
 import com.araguacaima.specification.Specification;
+import com.araguacaima.specification.common.StringUtils;
 import com.araguacaima.specification.interpreter.Context;
 import com.araguacaima.specification.interpreter.Evaluator;
 import com.araguacaima.specification.interpreter.Expression;
@@ -77,7 +77,6 @@ public class LogicalArithmeticEvaluator<T> implements Evaluator {
     private final LogicalEvaluator logicalEvaluator;
     protected Context ctx;
     protected String expressionString;
-    protected StringUtils stringUtils = StringUtils.getInstance();
     protected Expression expression;
     private boolean evaluateAllTerms;
     private int order = 0;
@@ -219,7 +218,7 @@ public class LogicalArithmeticEvaluator<T> implements Evaluator {
         Stack<Expression> s = new Stack<>();
         Collection<Character> symbolOperators = getOperators();
         CollectionUtils.transform(symbolOperators, TransformerUtils.invokerTransformer("toString"));
-        Collection<String> tokens = stringUtils.splitBySeparators(expressionString, symbolOperators);
+        Collection<String> tokens = StringUtils.splitBySeparators(expressionString, symbolOperators);
         for (int i = 0; i < expr.length(); ) {
             String currChar = expr.substring(i, 1);
 
@@ -228,7 +227,7 @@ public class LogicalArithmeticEvaluator<T> implements Evaluator {
                 if (limit == -1) {
                     limit = expr.length();
                 }
-                String token = stringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
+                String token = StringUtils.firstToken(expr.substring(0, limit).trim(), tokens);
                 tokens.remove(token);
                 Expression e = new TerminalLogicalArithmeticExpression(token);
                 s.push(e);

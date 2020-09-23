@@ -31,8 +31,8 @@ public class AbstractSpecificationImpl extends AbstractSpecification {
         super(evaluateAllTerms);
     }
 
-    public boolean isSatisfiedBy(Object object, Map<Object, Object> map)
-            throws Exception {
+    @Override
+    public boolean isSatisfiedBy(Object object, Map<Object, Object> map) {
         return false;
     }
 }
