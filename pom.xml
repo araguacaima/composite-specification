@@ -77,7 +77,7 @@
         <maven.skip.tests>false</maven.skip.tests>
 
         <!-- tests -->
-        <junit-junit>4.13</junit-junit>
+        <junit-junit>4.13.1</junit-junit>
 
         <!-- deployment -->
         <org.sonatype.plugins-nexus-staging-maven-plugin>1.6.8</org.sonatype.plugins-nexus-staging-maven-plugin>
