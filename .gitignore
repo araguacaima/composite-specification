@@ -9,3 +9,5 @@ build/
 /target/
 bin/
 out/
+/release.properties
+/pom.xml.releaseBackup
